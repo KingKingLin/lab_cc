@@ -24,12 +24,12 @@
 
         <!-- 数据库链接配置 -->
         <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
-                        connectionURL="jdbc:mysql://localhost:3306/wikidev"
-                        userId="wikidev" password="wikidev">
+                        connectionURL="jdbc:mysql://localhost:3306/lab_teach"
+                        userId="lab_teach" password="lab_teach">
         </jdbcConnection>
 
         <!-- domain类的位置 -->
-        <javaModelGenerator targetPackage="com.jiawa.wiki.domain"
+        <javaModelGenerator targetPackage="com.cc.lab_teach.domain"
                             targetProject="src\main\java"/>
 
         <!-- mapper xml 的位置 -->
@@ -38,15 +38,10 @@
 
         <!-- mapper 类的位置 -->
         <javaClientGenerator type="XMLMAPPER"
-                             targetPackage="com.jiawa.wiki.mapper"
+                             targetPackage="com.cc.lab_teach.mapper"
                              targetProject="src\main\java"/>
+
         <!-- 需要生成对应pojo、mapper等实体类对应的表 -->
-        <!-- <table tableName="demo" domainObjectName="Demo"/>-->
-<!--        <table tableName="ebook"/> &lt;!&ndash; domainObjectName 不写，会自动生成一个首字母大写的实体类 &ndash;&gt;-->
-<!--        <table tableName="category"/>-->
-<!--        <table tableName="doc"/>-->
-<!--        <table tableName="content"/>-->
-<!--        <table tableName="user"/>-->
-        <table tableName="ebook_snapshot"/>
+        <table tableName="student"/>
     </context>
 </generatorConfiguration>
