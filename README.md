@@ -1,6 +1,6 @@
 # 实验教学管理系统
 
-## day1
+## day1 完成后端项目的配置
 
 1. 初始化后端项目
 
@@ -167,4 +167,66 @@
       </generatorConfiguration>
       ```
 
-      
+   3. 添加 maven 命令
+   
+      > mybatis-generator:generate -e
+   
+6. 集成热部署（ 代码即删即用 ）
+
+   1. 添加热部署的依赖
+
+      ```xml
+      ```
+
+   2. 修改项目相关配置
+
+## day2 完成登录页面的开发
+
+ 1. 初始化前端项目 vue create web
+
+ 2. 集成 ElementUI
+
+    > npm i element-ui -S
+    
+ 3. 添加路由拦截器，必须先登录才可以访问后续页面
+
+    ```js
+    // 路由登录拦截
+    // to 跳到哪一个路由
+    // from 旧路由
+    // next 是一个方法
+    router.beforeEach((to, from, next) => {
+      if (to.matched.some(function (item) { // 如果返回 true，代表需要做路由的校验
+        return item.meta.loginRequire;
+      })) {
+        if (JSON.stringify(store.state.m_user.user) === '{}') {
+          next('/login'); // 跳到登录页
+        } else {
+          next();
+        }
+      } else {
+        next()
+      }
+    });
+    ```
+
+ 4. 集成 axios，同时配置访问的后端路径
+
+    > npm install axios -s
+
+    1. 添加一个 .env.dev 和 .env.prod 配置文件
+
+        ```
+        NODE_ENV=production
+        VUE_APP_SERVER=http://127.0.0.1:8888
+        VUE_APP_WS_SERVER=ws://127.0.0.1:8888
+        ```
+
+    2. 
+
+ 5. 编写登录页面 login.vue
+
+    ```vue
+    ```
+
+    
