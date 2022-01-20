@@ -1,17 +1,21 @@
 <template>
-    <div>
-        首页
-    </div>
+    <my-student v-if="type === 0"></my-student>
+    <my-teacher v-else></my-teacher>
 </template>
 
 <script>
+    import { mapState } from 'vuex'
+    import myStudent from './student/my-student.vue'
+    import myTeacher from './teacher/my-teacher.vue'
+
     export default {
         name: 'home',
-        data() {
-            return {};
+        components: {
+            myStudent,
+            myTeacher
         },
-        setup() {
-
+        computed: {
+            ...mapState('m_user', ['type'])
         }
     }
 </script>

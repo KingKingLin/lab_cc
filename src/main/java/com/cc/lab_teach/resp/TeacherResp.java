@@ -1,13 +1,13 @@
 package com.cc.lab_teach.resp;
 
-public class StudentResp {
+public class TeacherResp {
     private String token; // token
 
     private String id;
 
     private String name;
 
-    private int type = 0; // 0 表示学生
+    private int type = 1; // 1 表示教师
 
     public void setType(int type) {
         this.type = type;

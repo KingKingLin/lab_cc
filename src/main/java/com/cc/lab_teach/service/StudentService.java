@@ -29,11 +29,12 @@ public class StudentService {
                 StudentResp resp = CopyUtil.copy(st, StudentResp.class);
                 String token = UUID.randomUUID().toString();
                 resp.setToken(token);
+                LOG.info("返回: {}", resp);
                 return resp;
             } else {
                 throw new BusinessException(BusinessExceptionCode.LOGIN_STUDENT_ERROR);
             }
         }
-        throw new BusinessException(BusinessExceptionCode.LOGIN_STUDENT_ERROR);
+        throw new BusinessException(BusinessExceptionCode.Not_EXITS);
     }
 }

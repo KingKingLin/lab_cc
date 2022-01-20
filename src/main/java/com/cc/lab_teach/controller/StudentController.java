@@ -28,6 +28,7 @@ public class StudentController {
         CommonResp<StudentResp> result = new CommonResp<>();
         result.setContent(login);
         result.setMessage("登录成功");
+        LOG.info("登录成功: {}", login);
         return result;
     }
 }

@@ -9,7 +9,7 @@
                     <i class="el-icon-user"></i>
                 </div>
                 <el-input
-                        placeholder="学号"
+                        :placeholder="type === 0 ? '学号' : '教工号'"
                         v-model="id"
                         clearable>
                 </el-input>
@@ -19,10 +19,19 @@
                 <div class="pad">
                     <i class="el-icon-lock"></i>
                 </div>
-                <el-input placeholder="密码" v-model="password" show-password></el-input>
+                <el-input placeholder="密码, 默认: 000000" v-model="password" show-password></el-input>
             </div>
             <!-- 登录按钮 -->
             <div class="info">
+                <el-dropdown @command="changeStatus" class="pad" size="small">
+                    <span class="el-dropdown-link">
+                        身份: {{status[selected]}}
+                        <i class="el-icon-arrow-down el-icon--right"></i>
+                    </span>
+                    <el-dropdown-menu slot="dropdown">
+                        <el-dropdown-item v-for="(item, i) in status" :key="i" :disabled="i === selected" :command="i">{{item}}</el-dropdown-item>
+                    </el-dropdown-menu>
+                </el-dropdown>
                 <el-button size="medium" @click="login">登录</el-button>
             </div>
         </div>
@@ -31,18 +40,23 @@
 
 <script>
     import axios from 'axios'
-    import { mapMutations } from 'vuex'
+    import { mapMutations, mapState } from 'vuex'
 
     export default {
         name: 'login',
         data() {
             return {
-                id: '20193306',
-                password: '000000'
+                id: '20010609',
+                password: '000000',
+                status: ['学生', '教师'],
+                selected: 0
             };
         },
+        computed: {
+            ...mapState('m_user', ['type'])
+        },
         methods: {
-            ...mapMutations('m_user', ['setUser']),
+            ...mapMutations('m_user', ['setToken', 'setUser', 'setType']),
             async login() {
                 if (this.id.length !== 8) {
                     this.$message({
@@ -58,21 +72,44 @@
                     })
                     return
                 }
-                if (this.id.length === 8 && this.password.length !== 0) {
+                if (this.type === 0) { // 学生登录
                     const {data: res} = await axios.post('/student/login?id='+this.id+'&password='+this.password)
                     if (!res.success) { // 登陆失败
                         this.$message({
-                            message: '学号或密码错误',
+                            message: res.message,
                             type: 'warning'
                         })
                         return
                     }
-                    // 否则登录成功
-                    console.log("登录成功: ", res.content)
-                    this.setUser(res.content)
-                    // this.$router.push("/") // 路由跳转到首页 "/"
-                    this.$router.replace("/") // 路由跳转到首页 "/"
+                    await this.storeUser(res)
+                } else { // 教师登录
+                    const {data: res} = await axios.post('/teacher/login?id='+this.id+'&password='+this.password)
+                    if (!res.success) { // 登陆失败
+                        this.$message({
+                            message: res.message,
+                            type: 'warning'
+                        })
+                        return
+                    }
+                    await this.storeUser(res)
                 }
+            },
+            async storeUser(res) {
+                console.log("登录成功: ", res)
+                // 否则登录成功
+                this.setToken(res.content.token)
+                this.setUser({
+                    id: res.content.id,
+                    name: res.content.name
+                })
+                this.setType(res.content.type)
+                // this.$router.push("/") // 路由跳转到首页 "/"
+                await this.$router.replace("/") // 路由跳转到首页 "/"
+            },
+            changeStatus(i) {
+                console.log(i)
+                this.selected = i
+                this.setType(i)
             }
         }
     }

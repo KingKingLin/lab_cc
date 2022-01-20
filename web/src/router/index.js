@@ -39,7 +39,7 @@ router.beforeEach((to, from, next) => {
   if (to.matched.some(function (item) { // 如果返回 true，代表需要做路由的校验
     return item.meta.loginRequire;
   })) {
-    if (JSON.stringify(store.state.m_user.user) === '{}') {
+    if (store.state.m_user.token === '') {
       next('/login'); // 跳到登录页
     } else {
       next();
