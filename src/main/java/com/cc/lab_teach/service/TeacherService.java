@@ -32,9 +32,9 @@ public class TeacherService {
                 LOG.info("返回: {}", resp);
                 return resp;
             } else {
-                throw new BusinessException(BusinessExceptionCode.LOGIN_STUDENT_ERROR);
+                throw new BusinessException(BusinessExceptionCode.LOGIN_TEACHER_ERROR);
             }
         }
-        throw new BusinessException(BusinessExceptionCode.LOGIN_STUDENT_ERROR);
+        throw new BusinessException(BusinessExceptionCode.LOGIN_TEACHER_ERROR);
     }
 }
