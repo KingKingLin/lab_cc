@@ -1,6 +1,7 @@
 package com.cc.lab_teach.service;
 
 import com.cc.lab_teach.domain.Teacher;
+import com.cc.lab_teach.domain.TeacherExample;
 import com.cc.lab_teach.exception.BusinessException;
 import com.cc.lab_teach.exception.BusinessExceptionCode;
 import com.cc.lab_teach.mapper.TeacherMapper;
@@ -31,10 +32,25 @@ public class TeacherService {
                 resp.setToken(token);
                 LOG.info("返回: {}", resp);
                 return resp;
-            } else {
-                throw new BusinessException(BusinessExceptionCode.LOGIN_TEACHER_ERROR);
             }
         }
         throw new BusinessException(BusinessExceptionCode.LOGIN_TEACHER_ERROR);
+    }
+
+    public void resetPassword(TeacherReq teacher) {
+        Teacher t = teacherMapper.selectByPrimaryKey(teacher.getId());
+        // 参数校验
+        if (!ObjectUtils.isEmpty(t)) {
+            if (t.getName().equals(teacher.getName())) { // 参数校验成功, 开始修改密码
+                Teacher copy = CopyUtil.copy(teacher, Teacher.class);
+                int i = teacherMapper.updateByPrimaryKey(copy);
+                LOG.info("已修改 {} 例 ", i);
+                if (i == 1) {
+                    return;
+                }
+            }
+        }
+        // 该教师不存在
+        throw new BusinessException(BusinessExceptionCode.RESET_PASSWORD_ERROR);
     }
 }

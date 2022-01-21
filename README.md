@@ -393,4 +393,385 @@
     ```
     
 
-## day3 教师页面的开发
+## day3 教师修改密码、退出登录
+
+1. 解决刷新页面，登录信息消失的问题，<font color='crimson'>使用 H5 提供的 sessionStorage</font>
+
+   ```js
+   SessionStorage = {
+       get: function (key) {
+           const v = sessionStorage.getItem(key);
+           if (v && typeof(v) !== "undefined" && v !== "undefined") {
+               return JSON.parse(v);
+           }
+       },
+       set: function (key, data) {
+           sessionStorage.setItem(key, JSON.stringify(data));
+       },
+       remove: function (key) {
+           sessionStorage.removeItem(key);
+       },
+       clearAll: function () {
+           sessionStorage.clear();
+       }
+   };
+   ```
+
+2. 目前教师页面
+
+   ```vue
+   <template>
+       <el-container>
+           <el-header>
+               <img src="../../assets/csuft.jpg" alt="图片失联中..." class="logo"/>
+               <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" router @select="handleSelect">
+                   <el-menu-item index="/">首页</el-menu-item>
+                   <el-menu-item index="/teacher/manager/teach">教学管理</el-menu-item>
+                   <el-menu-item index="/teacher/manager/class">班级管理</el-menu-item>
+               </el-menu>
+               <div class="el-breadcrumb">
+                   <span>欢迎 {{user.name}} 老师</span>
+                   <el-divider direction="vertical"></el-divider>
+                   <span @click="resetPassword">修改密码</span>
+                   <el-divider direction="vertical"></el-divider>
+                   <span @click="logout">退出登录</span>
+               </div>
+           </el-header>
+           <my-resetpassword @sendMessage="sendMessage" ref="child"></my-resetpassword>
+       </el-container>
+   </template>
+   
+   <script>
+       import { mapState, mapMutations } from 'vuex'
+       import myResetpassword from '../../components/my-resetpassword.vue'
+       import axios from "axios";
+   
+       export default {
+           name: 'my-head',
+           components: {
+               myResetpassword
+           },
+           computed: {
+               ...mapState('m_user', ['user']),
+               ...mapState('m_teacher', ['activeIndex'])
+           },
+           methods: {
+               ...mapMutations('m_teacher', ['setActiveIndex']),
+               ...mapMutations('m_user', ['setUser']),
+               handleSelect(key, keyPath) {
+                   this.setActiveIndex(key)
+               },
+               resetPassword() {
+                   this.$refs.child.dialogVisible = true
+               },
+               async logout() {
+                   console.log("退出登录")
+                   SessionStorage.clearAll()
+                   await this.$router.replace("/login")
+                   // window.location.reload()
+               },
+               async sendMessage(teacher) {
+                   // console.log(teacher)
+                   const {data: res} = await axios.post('/teacher/reset-password?id='+teacher.id+'&name='+teacher.name+'&password='+teacher.password)
+                   if (res.success) {
+                       // 密码修改成功
+                       this.setUser(teacher)
+                       this.$message.success(res.message)
+                   } else {
+                       this.$message.error(res.message)
+                   }
+               }
+           }
+       }
+   </script>
+   
+   <style>
+       .el-header {
+           display: flex;
+           align-items: center;
+           justify-content: space-between;
+       }
+   
+       .logo {
+           height: 100%;
+       }
+   </style>
+   ```
+
+   ```vue
+   <template>
+       <div>
+           <my-head></my-head>
+           <el-main>Main</el-main>
+       </div>
+   </template>
+   
+   <script>
+       import myHead from '../../components/teacher/my-head.vue'
+   
+       export default {
+           name: 'my-teacher',
+           components: {
+               myHead
+           },
+           data() {
+               return {};
+           },
+           setup() {
+   
+           }
+       }
+   </script>
+   
+   <style>
+       .el-main {
+           background-color: #E9EEF3;
+           color: #333;
+           text-align: center;
+           line-height: 160px;
+       }
+   </style>
+   ```
+
+3. 抽取 修改密码 对话框，以便于后面 学生页面 的开发
+
+   ```vue
+   <template>
+       <el-dialog
+               title="修改密码"
+               :visible.sync="dialogVisible"
+               width="30%"
+               :before-close="handleClose">
+           <div>
+               <div class="resetPassword-item">
+                   <div class="resetPassword-info">
+                       <span>{{type === 0 ? '学号' : '教工号'}}: </span>
+                   </div>
+                   <el-input
+                           suffix-icon="el-icon-user"
+                           v-model="mine.id"
+                           :disabled="true">
+                   </el-input>
+               </div>
+               <div class="resetPassword-item">
+                   <div class="resetPassword-info">
+                       <span>姓名: </span>
+                   </div>
+                   <el-input
+                           suffix-icon="el-icon-postcard"
+                           v-model="mine.name"
+                           :disabled="true">
+                   </el-input>
+               </div>
+               <div class="resetPassword-item">
+                   <div class="resetPassword-info">
+                       <span>当前密码: </span>
+                   </div>
+                   <el-input
+                           placeholder="当前密码"
+                           suffix-icon="el-icon-key"
+                           v-model="mine.pre_password"
+                           show-password>
+                   </el-input>
+               </div>
+               <div class="resetPassword-item">
+                   <div class="resetPassword-info">
+                       <span>新密码: </span>
+                   </div>
+                   <el-input
+                           placeholder="新密码"
+                           suffix-icon="el-icon-unlock"
+                           v-model="mine.new_password"
+                           show-password>
+                   </el-input>
+               </div>
+               <div class="resetPassword-item">
+                   <div class="resetPassword-info">
+                       <span>确认密码: </span>
+                   </div>
+                   <el-input
+                           placeholder="确认密码"
+                           suffix-icon="el-icon-lock"
+                           v-model="mine.confirm_password"
+                           show-password>
+                   </el-input>
+               </div>
+           </div>
+           <span slot="footer" class="dialog-footer">
+                   <el-button size="small" @click="dialogVisible = false">取消</el-button>
+                   <el-button type="primary" size="small" @click="confirm">确定</el-button>
+               </span>
+       </el-dialog>
+   </template>
+   
+   <script>
+       import { mapState } from 'vuex'
+   
+       export default {
+           name: 'my-resetpassword',
+           computed: {
+               ...mapState('m_user', ['user', 'type'])
+           },
+           data() {
+               return {
+                   mine: {
+                       id: '',
+                       name: '',
+                       pre_password: '',
+                       new_password: '',
+                       confirm_password: ''
+                   },
+                   dialogVisible: false
+               }
+           },
+           mounted() {
+               this.mine.id = this.user.id
+               this.mine.name = this.user.name
+           },
+           methods: {
+               handleClose(done) {
+                   this.$confirm('确认关闭？')
+                       .then(_ => {
+                           // console.log("确认关闭")
+                           // 关闭后将数据重置
+                           this.mine.pre_password = ''
+                           this.mine.new_password = ''
+                           this.mine.confirm_password = ''
+                           //
+                           done();
+                       })
+                       .catch(_ => {});
+               },
+               confirm() {
+                   // console.log("确认修改密码, 参数校验中...")
+                   if (this.mine.id !== this.user.id || this.mine.name !== this.user.name || this.mine.pre_password !== this.user.password) {
+                       if (this.type === 0) {
+                           this.$message.error('学号或密码错误')
+                       } else {
+                           this.$message.error('教工号或密码错误')
+                       }
+                       return
+                   }
+                   if (this.mine.new_password.length === 0) {
+                       this.$message({
+                           message: '【新密码】不能为空',
+                           type: 'warning'
+                       })
+                       return
+                   }
+                   if (!this.mine.new_password.match('^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,18}$')) {
+                       this.$message({
+                           message: '【密码】至少包含 数字和英文，长度6-18',
+                           type: 'warning'
+                       })
+                       return
+                   }
+                   if (this.mine.confirm_password.length === 0) {
+                       this.$message({
+                           message: '【确认密码】不能为空',
+                           type: 'warning'
+                       })
+                       return
+                   }
+                   if (this.mine.new_password !== this.mine.confirm_password) {
+                       this.$message({
+                           message: '前后密码不一致',
+                           type: 'warning'
+                       })
+                       return
+                   }
+                   // 确认无误后，修改密码
+                   this.$emit('sendMessage', {
+                       id: this.mine.id,
+                       name: this.mine.name,
+                       password: this.mine.new_password
+                   })
+                   // 确认后，重置数据
+                   this.mine.pre_password = ''
+                   this.mine.new_password = ''
+                   this.mine.confirm_password = ''
+                   // 对话框消失
+                   this.dialogVisible = false
+               }
+           }
+       }
+   </script>
+   
+   <style>
+       .resetPassword-item {
+           display: flex;
+           justify-content: space-around;
+           padding-bottom: 10px;
+       }
+   
+       .resetPassword-info {
+           width: 100px;
+           display: flex;
+           flex-direction: column;
+           justify-content: center;
+       }
+   </style>
+   ```
+
+4. 后端集成 Validation 做参数校验
+
+   ```xml
+   <!-- 集成 Validation 做参数校验 -->
+   <dependency>
+       <groupId>org.springframework.boot</groupId>
+       <artifactId>spring-boot-starter-validation</artifactId>
+   </dependency>
+   ```
+
+   1. 在要校验的参数前加上 @Valid 注解
+
+   2. 在要校验的属性上加上 @Pattern 等校验规则
+
+   3. 编写校验失败的处理函数
+
+      ```java
+      package com.cc.lab_teach.controller;
+      
+      import com.cc.lab_teach.exception.BusinessException;
+      import com.cc.lab_teach.resp.CommonResp;
+      import org.slf4j.Logger;
+      import org.slf4j.LoggerFactory;
+      import org.springframework.validation.BindException;
+      import org.springframework.web.bind.annotation.ControllerAdvice;
+      import org.springframework.web.bind.annotation.ExceptionHandler;
+      import org.springframework.web.bind.annotation.ResponseBody;
+      
+      @ControllerAdvice
+      public class ExceptionController {
+          private static final Logger LOG = LoggerFactory.getLogger(ExceptionController.class);
+      
+          /**
+           * 拦截业务异常
+           */
+          @ExceptionHandler(value = BusinessException.class)
+          @ResponseBody
+          public CommonResp businessExceptionHandler(BusinessException e) {
+              CommonResp commonResp = new CommonResp();
+              LOG.warn("业务异常：{}", e.getCode().getDesc());
+              commonResp.setSuccess(false);
+              commonResp.setMessage(e.getCode().getDesc());
+              return commonResp;
+          }
+      
+          /**
+           * validation 校验，出现异常都会被它捕获
+           * 校验异常统一处理
+           */
+          @ExceptionHandler(value = BindException.class)
+          @ResponseBody
+          public CommonResp<Object> validExceptionHandler(BindException e) {
+              CommonResp<Object> commonResp = new CommonResp<>();
+              LOG.warn("参数校验失败：{}", e.getBindingResult().getAllErrors().get(0).getDefaultMessage());
+              commonResp.setSuccess(false);
+              commonResp.setMessage(e.getBindingResult().getAllErrors().get(0).getDefaultMessage()); // 拿到校验失败的信息
+              return commonResp;
+          }
+      }
+      ```
+
+      

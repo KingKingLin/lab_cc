@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/teacher")
@@ -28,6 +29,17 @@ public class TeacherController {
         result.setContent(login);
         result.setMessage("登录成功");
         LOG.info("登录成功: {}", login);
+        return result;
+    }
+
+    // @Valid 开启参数校验
+    @PostMapping("/reset-password")
+    public CommonResp<Object> resetPassword(@Valid TeacherReq teacher) {
+        LOG.info("{} 请求修改密码", teacher);
+        teacherService.resetPassword(teacher);
+        CommonResp<Object> result = new CommonResp<>();
+        result.setMessage("修改密码成功");
+        LOG.info("{} 修改密码成功", teacher);
         return result;
     }
 }

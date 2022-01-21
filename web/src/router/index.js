@@ -2,6 +2,8 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/home.vue'
 import Login from '../views/login.vue'
+import MyTeach from '../views/teacher/manager/my-teach.vue'
+import MyClass from '../views/teacher/manager/my-class.vue'
 import store from '../store/index.js'
 
 Vue.use(VueRouter)
@@ -21,6 +23,22 @@ const routes = [
     component: Login,
     meta: {
       loginRequire: false // 不需要登录校验
+    }
+  },
+  {
+    path: '/teacher/manager/teach',
+    name: 'MyTeach',
+    component: MyTeach,
+    meta: {
+      loginRequire: true // 需要登录校验
+    }
+  },
+  {
+    path: '/teacher/manager/class',
+    name: 'MyClass',
+    component: MyClass,
+    meta: {
+      loginRequire: true // 需要登录校验
     }
   }
 ]

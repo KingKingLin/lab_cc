@@ -7,6 +7,16 @@ public class StudentResp {
 
     private String name;
 
+    private String password;
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     private int type = 0; // 0 表示学生
 
     public void setType(int type) {
@@ -49,6 +59,7 @@ public class StudentResp {
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
         sb.append(", name=").append(name);
+        sb.append(", password=").append(password);
         sb.append(", type=").append(type);
         sb.append(", token=").append(token);
         sb.append("]");

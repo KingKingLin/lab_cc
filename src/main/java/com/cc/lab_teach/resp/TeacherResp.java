@@ -7,7 +7,17 @@ public class TeacherResp {
 
     private String name;
 
+    private String password;
+
     private int type = 1; // 1 表示教师
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
     public void setType(int type) {
         this.type = type;
@@ -49,6 +59,7 @@ public class TeacherResp {
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
         sb.append(", name=").append(name);
+        sb.append(", password=").append(password);
         sb.append(", type=").append(type);
         sb.append(", token=").append(token);
         sb.append("]");

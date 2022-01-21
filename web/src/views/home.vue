@@ -4,9 +4,9 @@
 </template>
 
 <script>
-    import { mapState } from 'vuex'
     import myStudent from './student/my-student.vue'
     import myTeacher from './teacher/my-teacher.vue'
+    import { mapState } from 'vuex'
 
     export default {
         name: 'home',

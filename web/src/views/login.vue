@@ -100,7 +100,8 @@
                 this.setToken(res.content.token)
                 this.setUser({
                     id: res.content.id,
-                    name: res.content.name
+                    name: res.content.name,
+                    password: res.content.password
                 })
                 this.setType(res.content.type)
                 // this.$router.push("/") // 路由跳转到首页 "/"
