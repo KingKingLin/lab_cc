@@ -3,7 +3,7 @@
 <mapper namespace="com.cc.lab_teach.mapper.MyMapper">
     <select id="getAllClasses" resultType="com.cc.lab_teach.domain.Classes">
         select id, name from classes
-        where id in ( select c_id from t_c where t_id = '20010609')
+        where id in ( select c_id from t_c where t_id = ${id})
         order by name asc
     </select>
 </mapper>

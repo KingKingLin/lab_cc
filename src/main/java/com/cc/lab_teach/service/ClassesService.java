@@ -6,7 +6,6 @@ import com.cc.lab_teach.exception.BusinessException;
 import com.cc.lab_teach.exception.BusinessExceptionCode;
 import com.cc.lab_teach.mapper.ClassesMapper;
 import com.cc.lab_teach.mapper.MyMapper;
-import com.cc.lab_teach.mapper.TCMapper;
 import com.cc.lab_teach.resp.ClassesResp;
 import com.cc.lab_teach.util.CopyUtil;
 import org.slf4j.Logger;
