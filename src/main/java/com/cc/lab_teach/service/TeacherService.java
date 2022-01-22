@@ -53,4 +53,11 @@ public class TeacherService {
         // 该教师不存在
         throw new BusinessException(BusinessExceptionCode.RESET_PASSWORD_ERROR);
     }
+
+    public boolean hasObject(String id) {
+        LOG.info("开始查询教工号为: {} 的教师是否存在", id);
+        Teacher teacher = teacherMapper.selectByPrimaryKey(id);
+        // 如果 teacher 为空, 则代表者: 该 teacher 不存在, 返回 false
+        return !ObjectUtils.isEmpty(teacher);
+    }
 }

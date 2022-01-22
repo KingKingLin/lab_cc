@@ -42,7 +42,13 @@
                              targetProject="src\main\java"/>
 
         <!-- 需要生成对应pojo、mapper等实体类对应的表 -->
-<!--        <table tableName="student"/>-->
-        <table tableName="teacher"/>
+        <!-- 学生表 -->
+        <!-- <table tableName="student"/>-->
+        <!-- 教师表-->
+        <!-- <table tableName="teacher"/>-->
+        <!-- 班级表 -->
+        <!-- <table tableName="classes"/>-->
+        <!-- 教师班级关联表 -->
+        <table tableName="t_c"/>
     </context>
 </generatorConfiguration>
