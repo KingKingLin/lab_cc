@@ -1,7 +1,7 @@
 <template>
     <div>
         <my-head></my-head>
-        <el-main>Main</el-main>
+        教师首页
     </div>
 </template>
 
@@ -21,12 +21,3 @@
         }
     }
 </script>
-
-<style>
-    .el-main {
-        background-color: #E9EEF3;
-        color: #333;
-        text-align: center;
-        line-height: 160px;
-    }
-</style>

@@ -72,6 +72,7 @@
                     })
                     return
                 }
+                // console.log('退出登录后 type = ' + this.type)
                 if (this.type === 0) { // 学生登录
                     const {data: res} = await axios.post('/student/login?id='+this.id+'&password='+this.password)
                     if (!res.success) { // 登陆失败
@@ -95,7 +96,7 @@
                 }
             },
             async storeUser(res) {
-                console.log("登录成功: ", res)
+                console.log("登录成功")
                 // 否则登录成功
                 this.setToken(res.content.token)
                 this.setUser({
@@ -108,7 +109,7 @@
                 await this.$router.replace("/") // 路由跳转到首页 "/"
             },
             changeStatus(i) {
-                console.log(i)
+                // console.log(i)
                 this.selected = i
                 this.setType(i)
             }

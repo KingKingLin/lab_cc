@@ -45,11 +45,12 @@
             async logout() {
                 console.log("退出登录")
                 SessionStorage.clearAll()
-                await this.$router.replace("/login")
-                // window.location.reload()
+                // await this.$router.replace("/login") // 路由到 '/login' 页面, 仍存在显示问题, 是因为每个页面都有缓存
+                location.reload() // 强制刷新页面, 清除页面缓存
+                // console.log("user = " + JSON.stringify(this.user))
+                // console.log("activeIndex = " + this.activeIndex)
             },
             async sendMessage(teacher) {
-                // console.log(teacher)
                 const {data: res} = await axios.post('/teacher/reset-password?id='+teacher.id+'&name='+teacher.name+'&password='+teacher.password)
                 if (res.success) {
                     // 密码修改成功
