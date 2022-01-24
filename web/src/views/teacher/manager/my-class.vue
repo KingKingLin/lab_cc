@@ -8,29 +8,59 @@
                     <div :class="['my-class-aside-item', i === activeIndex ? 'active' : '']" v-for="(item, i) in classes" :key="i" @click="getStudents(i, item.id)">
                         {{item.name}}
                     </div>
-                    <div class="my-class-aside-item">xxxx</div>
-                    <div class="my-class-aside-item">xxxx</div>
-                    <div class="my-class-aside-item">xxxx</div>
-                    <div class="my-class-aside-item">xxxx</div>
-                    <div class="my-class-aside-item">xxxx</div>
-                    <div class="my-class-aside-item">xxxx</div>
-                    <div class="my-class-aside-item">xxxx</div>
-                    <div class="my-class-aside-item">xxxx</div>
-                    <div class="my-class-aside-item">xxxx</div>
-                    <div class="my-class-aside-item">xxxx</div>
-                    <div class="my-class-aside-item">xxxx</div>
-                    <div class="my-class-aside-item">xxxx</div>
-                    <div class="my-class-aside-item">xxxx</div>
-                    <div class="my-class-aside-item">xxxx</div>
-                    <div class="my-class-aside-item">xxxx</div>
-                    <div class="my-class-aside-item">xxxx</div>
-                    <div class="my-class-aside-item">xxxx</div>
-                    <div class="my-class-aside-item">xxxx</div>
                 </div>
                 <el-empty :image-size="100" description="暂无任何班级信息" v-else></el-empty>
             </div>
             <div class="my-class-main">
-                Main
+                <div v-if="activeIndex !== -1">
+                    <div class="my-class-main-head">
+                        <el-popconfirm
+                                confirm-button-text='确定'
+                                cancel-button-text='取消'
+                                confirm-button-type="danger"
+                                cancel-button-type="primary"
+                                @confirm="dropClass"
+                                icon="el-icon-info"
+                                icon-color="red"
+                                title="此操作后，将不可恢复，确定继续？"
+                        >
+                            <el-button slot="reference" type="danger" plain>删除班级</el-button>
+                        </el-popconfirm>
+                        <el-upload
+                                class="upload-demo"
+                                action
+                                accept=".xlsx, .xls"
+                                :show-file-list="false"
+                                :http-request="httpRequest"
+                        >
+                            <button class="my-class-main-head-button">导入学生信息</button>
+                            <template #tip>
+                                <div class="el-upload__tip">
+                                    xlsx/xls files
+                                </div>
+                            </template>
+                        </el-upload>
+                    </div>
+                    <div class="my-class-main-student-table" v-if="students.length !== 0">
+                        <el-table
+                                :data="students"
+                                border
+                                style="width: 100%">
+                            <el-table-column
+                                    prop="id"
+                                    label="学号"
+                                    width="180">
+                            </el-table-column>
+                            <el-table-column
+                                    prop="name"
+                                    label="姓名"
+                                    width="180">
+                            </el-table-column>
+                        </el-table>
+                    </div>
+                    <el-empty :image-size="100" description="暂无学生信息, 请先导入！" v-else></el-empty>
+                </div>
+                <el-empty :image-size="100" description="请先选择对应的班级信息" v-else></el-empty>
             </div>
         </div>
     </div>
@@ -40,9 +70,11 @@
     import myHead from '../../../components/teacher/my-head.vue'
     import axios from "axios";
     import { mapState } from 'vuex';
+    import xlsxTools from '../../../mixins/XLSXTools.js'
 
     export default {
         name: 'my-class',
+        mixins: [xlsxTools],
         components: {
             myHead
         },
@@ -52,6 +84,7 @@
         data() {
             return {
                 classes: [],
+                students: [],
                 activeIndex: -1
             };
         },
@@ -113,10 +146,47 @@
                     console.log("用户取消新建班级")
                 })
             },
-            getStudents(i, id) {
-                console.log("需要有点击记录的组件的索引: ", i)
+            async getStudents(i, id) {
                 this.activeIndex = i
-                console.log("查询班级 "+ id +" 的学生列表: ")
+                // 查询学生信息
+                const {data: res} = await axios.get('/student/getAllStudents/' + id);
+                if (res.success) {
+                    this.students = res.content
+                }
+            },
+            dropClass() {
+                console.log("删除班级")
+            },
+            async httpRequest(e) {
+                // /student/addStudent/1?id=xxx&name=xxx
+                const file = e.file
+                // 用 dom 的 FileReader 以二进制形式读取该 file 文件
+                const data = await xlsxTools.method.readFile(file)
+                // 用 xlsx 工具以二进制形式解析该 data 数据, 最后以 JSON 形式返回
+                let result = xlsxTools.method.analyse(data)
+                // 最后进行属性转化, 将 中文 转换成 英文, 便于传递给后端使用
+                result = xlsxTools.method.changeCharacters(xlsxTools.data().characters, result)
+                console.log(result)
+                console.log("正在请求添加学生信息")
+                const id = this.classes[this.activeIndex].id
+                const loading = this.$loading({
+                    lock: true,
+                    text: '请稍等片刻, 正在全力为您导入学生信息中...',
+                    spinner: 'el-icon-loading',
+                    background: 'rgba(0, 0, 0, 0.7)'
+                })
+                for (const params of result) {
+                    const {data: res} = await axios.get('/student/addStudent/' + id, {
+                        params
+                    })
+                    if (!res.success) {
+                        this.$message.error(res.message)
+                    }
+                }
+                loading.text = "正在为您全力加载数据..."
+                // 遍历完, 如果没有错误, 则请求所有的学生数据
+                await this.getStudents(this.activeIndex, id)
+                loading.close(); // 不管创建与否都要关闭 loading 效果
             }
         }
     }
@@ -129,7 +199,7 @@
 
     .my-class-aside {
         width: 222px;
-        height: 540px;
+        height: 508px;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -144,11 +214,6 @@
         background-color: white;
         border-radius: 18px;
         border: 1px solid #efefef;
-    }
-
-    .my-class-aside-button:hover {
-        color: rgb(64, 158, 255);
-        background-color: rgb(236, 245, 255);
     }
 
     .my-class-aside-container {
@@ -171,7 +236,7 @@
     }
 
     .my-class-aside-item {
-        width: 100%;
+        width: 222px;
         height: 40px;
         font-size: 13px;
         line-height: 40px;
@@ -180,21 +245,43 @@
         background-color: #ffffff;
         /*background-color: lightblue;*/
         border-bottom: 1px solid #efefef;
+        overflow: hidden;
         white-space: nowrap; /* 不换行显示 */
         text-overflow: ellipsis; /* 超过一行则显示... */
     }
 
-    .my-class-aside-item:hover {
-        color: rgb(64, 158, 255);
-        background-color: rgb(236, 245, 255);
-    }
+    /*.my-class-aside-item:hover {*/
+    /*    color: rgb(64, 158, 255);*/
+    /*    background-color: rgb(236, 245, 255);*/
+    /*}*/
 
     .my-class-main {
         width: 100%;
     }
 
-    .active {
+    .my-class-main-head {
+        width: 100%;
+        height: 45px;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+
+    .my-class-main-head-button {
+        width: 200px;
+        color: rgb(96, 98, 102);
+        background-color: white;
+        border-radius: 18px;
+        border: 1px solid #efefef;
+    }
+
+    .my-class-aside-button:hover, .my-class-main-head-button:hover, .active{
         color: rgb(64, 158, 255);
         background-color: rgb(236, 245, 255);
+    }
+
+    .el-upload__tip {
+        transform: translateX(33.33%);
     }
 </style>

@@ -2,8 +2,24 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cc.lab_teach.mapper.MyMapper">
     <select id="getAllClasses" resultType="com.cc.lab_teach.domain.Classes">
-        select id, name from classes
-        where id in ( select c_id from t_c where t_id = ${id})
-        order by name asc
+        select `id`, `name` from classes
+        where `id` in ( select `c_id` from `t_c` where `t_id` = #{id})
+        order by `name` asc
+    </select>
+
+    <insert id="insert" parameterType="com.cc.lab_teach.domain.Student">
+        insert into `student`(id, name)
+        select #{id}, #{name}
+        from dual where not exists(
+                select * from `student` where `id` = #{id}
+            )
+    </insert>
+
+    <select id="selectByCid" resultType="com.cc.lab_teach.domain.Student">
+        select `id`, `name`
+        from `student`
+        where `id` in (
+            select `s_id` from `c_s` where `c_id` = #{c_id}
+            )
     </select>
 </mapper>

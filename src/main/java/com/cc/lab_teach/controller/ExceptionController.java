@@ -39,4 +39,19 @@ public class ExceptionController {
         commonResp.setMessage(e.getBindingResult().getAllErrors().get(0).getDefaultMessage()); // 拿到校验失败的信息
         return commonResp;
     }
+
+    /**
+     * 校验异常统一处理
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(value = Exception.class)
+    @ResponseBody
+    public CommonResp systemExceptionHandler(Exception e) {
+        CommonResp commonResp = new CommonResp();
+        LOG.error("系统异常：", e);
+        commonResp.setSuccess(false);
+        commonResp.setMessage("系统出现异常，请联系管理员");
+        return commonResp;
+    }
 }

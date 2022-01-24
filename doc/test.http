@@ -11,3 +11,11 @@ GET http://localhost:8888/teacher/getAllClasses?id=20010609
 Accept: application/json
 
 ###
+GET http://localhost:8888/student/addStudent/1?id=20192705&name=林啸扬
+Accept: application/json
+
+###
+GET http://localhost:8888/student/getAllStudents/1
+Accept: application/json
+
+###

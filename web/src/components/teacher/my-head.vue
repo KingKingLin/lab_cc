@@ -51,7 +51,7 @@
                 // console.log("activeIndex = " + this.activeIndex)
             },
             async sendMessage(teacher) {
-                const {data: res} = await axios.post('/teacher/reset-password?id='+teacher.id+'&name='+teacher.name+'&password='+teacher.password)
+                const {data: res} = await axios.post('/teacher/resetPassword?id='+teacher.id+'&name='+teacher.name+'&password='+teacher.password)
                 if (res.success) {
                     // 密码修改成功
                     this.setUser(teacher)

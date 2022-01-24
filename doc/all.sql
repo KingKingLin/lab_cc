@@ -46,3 +46,36 @@ create table `student` (
 
 -- 测试案例
 -- insert into `student`(id, name) values ('20193306', '张三');
+
+-- 班级 与 学生之间的关联表
+drop table if exists `c_s`;
+
+create table `c_s` (
+   `c_id` int,
+   `s_id` char(8),
+   primary key (`c_id`, `s_id`),
+   foreign key (`c_id`) references `classes`(`id`),
+   foreign key (`s_id`) references `student`(`id`)
+);
+
+-- 实验表：一个班级的所有学生的实验题目都是一样的
+drop table if exists `experiment`;
+
+create table `experiment` (
+  `e_id` bigint primary key auto_increment,
+  `c_id` int,
+  `content` mediumtext, -- 富文本
+  foreign key (`c_id`) references `classes`(`id`)
+);
+
+-- 答案表
+drop table if exists `answer`;
+
+create table `answer` (
+  `a_id` bigint primary key auto_increment, -- 答案 id
+  `s_id` char(8), -- 学生 id
+  `correct` mediumtext, -- 教师的评阅
+  `result` mediumtext, -- 学生的答案
+  `redo` boolean default false, -- 是否允许重做
+  foreign key (`s_id`) references `student`(`id`)
+)

@@ -7,7 +7,7 @@ public enum BusinessExceptionCode {
     LOGIN_TEACHER_ERROR("教工号不存在或密码错误"),
     RESET_PASSWORD_ERROR("修改密码失败"),
     DANGEROUS_OPERATION("非法操作"),
-    REPEAT_TO_ADD("重复添加班级"),
+    REPEAT_TO_ADD("重复添加"),
     ;
 
     private String desc;

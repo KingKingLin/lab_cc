@@ -49,6 +49,8 @@
         <!-- 班级表 -->
         <!-- <table tableName="classes"/>-->
         <!-- 教师班级关联表 -->
-        <table tableName="t_c"/>
+        <!-- <table tableName="t_c"/>-->
+        <!-- 班级学生关联表 -->
+        <table tableName="c_s"/>
     </context>
 </generatorConfiguration>

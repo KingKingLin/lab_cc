@@ -33,7 +33,7 @@ public class TeacherController {
     }
 
     // @Valid 开启参数校验
-    @PostMapping("/reset-password")
+    @PostMapping("/resetPassword")
     public CommonResp<Object> resetPassword(@Valid TeacherReq teacher) {
         LOG.info("{} 请求修改密码", teacher);
         teacherService.resetPassword(teacher);
