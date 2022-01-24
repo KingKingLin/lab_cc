@@ -1,21 +1,25 @@
 ### 测试添加班级功能
-GET http://localhost:8888/teacher/addClasses?id=20010609&name=2019级计科三班
+GET http://localhost:8888/teacher/add-class?id=20010609&name=2019级计科三班
 Accept: application/json
 
 ###
-GET http://localhost:8888/teacher/addClasses?id=20010609&name=2019级计科二班
+GET http://localhost:8888/teacher/add-class?id=20010609&name=2019级计科二班
 Accept: application/json
 
 ### 测试根据 id 查询所有关联的 班级
-GET http://localhost:8888/teacher/getAllClasses?id=20010609
+GET http://localhost:8888/teacher/all-classes?id=20010609
 Accept: application/json
 
 ###
-GET http://localhost:8888/student/addStudent/1?id=20192705&name=林啸扬
+GET http://localhost:8888/student/add/1?id=20192705&name=林啸扬
 Accept: application/json
 
 ###
-GET http://localhost:8888/student/getAllStudents/1
+GET http://localhost:8888/student/all/8
+Accept: application/json
+
+###
+GET http://localhost:8888/student/part/8?page=2&size=8
 Accept: application/json
 
 ###

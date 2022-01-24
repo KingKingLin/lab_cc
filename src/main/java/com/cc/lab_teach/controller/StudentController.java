@@ -1,8 +1,10 @@
 package com.cc.lab_teach.controller;
 
 import com.cc.lab_teach.req.AddStudentReq;
+import com.cc.lab_teach.req.PageReq;
 import com.cc.lab_teach.req.StudentReq;
-import com.cc.lab_teach.resp.AllStudent;
+import com.cc.lab_teach.resp.PageResp;
+import com.cc.lab_teach.resp.StudentPageResp;
 import com.cc.lab_teach.resp.CommonResp;
 import com.cc.lab_teach.resp.StudentResp;
 import com.cc.lab_teach.service.StudentService;
@@ -32,7 +34,7 @@ public class StudentController {
         return resp;
     }
 
-    @GetMapping("/addStudent/{c_id}")
+    @GetMapping("/add/{c_id}")
     public CommonResp<Boolean> addStudent(AddStudentReq student, @PathVariable String c_id) {
         studentService.addStudent(student, Integer.parseInt(c_id));
         CommonResp<Boolean> resp = new CommonResp<>();
@@ -41,11 +43,21 @@ public class StudentController {
         return resp;
     }
 
-    @GetMapping("/getAllStudents/{c_id}")
-    public CommonResp<List<AllStudent>> getAllStudents(@PathVariable String c_id) {
-        LOG.info("有教师在请求, c_id = {} 的班级信息", c_id);
-        List<AllStudent> students = studentService.getAllStudents(Integer.parseInt(c_id));
-        CommonResp<List<AllStudent>> resp = new CommonResp<>();
+    @GetMapping("/all/{c_id}")
+    public CommonResp<List<StudentPageResp>> getAllStudents(@PathVariable String c_id) {
+        LOG.info("有教师在请求, c_id = {} 的所有班级信息", c_id);
+        List<StudentPageResp> students = studentService.getAllStudents(Integer.parseInt(c_id));
+        CommonResp<List<StudentPageResp>> resp = new CommonResp<>();
+        resp.setContent(students);
+        resp.setMessage("查询成功");
+        return resp;
+    }
+
+    @GetMapping("/part/{c_id}")
+    public CommonResp<PageResp<StudentPageResp>> getPartStudents(PageReq page, @PathVariable String c_id) {
+        LOG.info("有教师在请求, c_id = {} 的部分班级信息", c_id);
+        PageResp<StudentPageResp> students = studentService.getStudentByPage(page, Integer.parseInt(c_id));
+        CommonResp<PageResp<StudentPageResp>> resp = new CommonResp<>();
         resp.setContent(students);
         resp.setMessage("查询成功");
         return resp;

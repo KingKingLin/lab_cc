@@ -51,31 +51,43 @@ create table `student` (
 drop table if exists `c_s`;
 
 create table `c_s` (
-   `c_id` int,
-   `s_id` char(8),
-   primary key (`c_id`, `s_id`),
-   foreign key (`c_id`) references `classes`(`id`),
-   foreign key (`s_id`) references `student`(`id`)
+    `c_id` int,
+    `s_id` char(8),
+    primary key (`c_id`, `s_id`),
+    foreign key (`c_id`) references `classes`(`id`),
+    foreign key (`s_id`) references `student`(`id`)
 );
 
 -- 实验表：一个班级的所有学生的实验题目都是一样的
 drop table if exists `experiment`;
 
 create table `experiment` (
-  `e_id` bigint primary key auto_increment,
-  `c_id` int,
-  `content` mediumtext, -- 富文本
-  foreign key (`c_id`) references `classes`(`id`)
+    `e_id` bigint primary key auto_increment,
+    `c_id` int,
+    `title` varchar(50), -- 实验的名字，如: ['实验一', '实验二'] 等
+    foreign key (`c_id`) references `classes`(`id`)
+);
+
+-- 题目表，一个实验可能有多个题目
+drop table if exists `homework`;
+
+create table `homework` (
+    `h_id` bigint primary key auto_increment,
+    `e_id` bigint, -- 对应的是哪一个实验
+    `content` mediumtext, -- 富文本，存放题目的内容
+    foreign key (`e_id`) references `experiment`(`e_id`)
 );
 
 -- 答案表
 drop table if exists `answer`;
 
 create table `answer` (
-  `a_id` bigint primary key auto_increment, -- 答案 id
-  `s_id` char(8), -- 学生 id
-  `correct` mediumtext, -- 教师的评阅
-  `result` mediumtext, -- 学生的答案
-  `redo` boolean default false, -- 是否允许重做
-  foreign key (`s_id`) references `student`(`id`)
-)
+    `a_id` bigint primary key auto_increment, -- 答案 id
+    `s_id` char(8), -- 学生 id, 一个学生对应一个答案
+    `h_id` bigint, -- 外键，homework 表，表示该答案是对应哪一个题目的
+    `correct` mediumtext, -- 教师的评阅
+    `result` mediumtext, -- 学生的答案
+    `redo` boolean default false, -- 是否允许重做
+    foreign key (`s_id`) references `student`(`id`),
+    foreign key (`h_id`) references `homework`(`h_id`)
+);

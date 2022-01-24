@@ -25,7 +25,7 @@ public class ClassesController {
      * @param name 需要创建的班级名
      * @return 是否创建成功等信息
      */
-    @GetMapping("/addClasses")
+    @GetMapping("/add-class")
     public CommonResp<Boolean> addClasses(String id, String name) {
         Boolean result = classesService.addClasses(id, name);
         CommonResp<Boolean> resp = new CommonResp<>();
@@ -39,7 +39,7 @@ public class ClassesController {
      * @param id 教工号
      * @return 班级集合
      */
-    @GetMapping("/getAllClasses")
+    @GetMapping("/all-classes")
     public CommonResp<List<ClassesResp>> getAllClasses(String id) {
         List<ClassesResp> classes = classesService.getAllClasses(id);
         CommonResp<List<ClassesResp>> resp = new CommonResp<>();

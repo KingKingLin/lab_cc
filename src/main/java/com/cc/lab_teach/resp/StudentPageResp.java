@@ -1,6 +1,6 @@
 package com.cc.lab_teach.resp;
 
-public class AllStudent {
+public class StudentPageResp {
     private String id;
 
     private String name;

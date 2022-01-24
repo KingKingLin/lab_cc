@@ -6,10 +6,14 @@ import com.cc.lab_teach.exception.BusinessExceptionCode;
 import com.cc.lab_teach.mapper.MyMapper;
 import com.cc.lab_teach.mapper.StudentMapper;
 import com.cc.lab_teach.req.AddStudentReq;
+import com.cc.lab_teach.req.PageReq;
 import com.cc.lab_teach.req.StudentReq;
-import com.cc.lab_teach.resp.AllStudent;
+import com.cc.lab_teach.resp.PageResp;
+import com.cc.lab_teach.resp.StudentPageResp;
 import com.cc.lab_teach.resp.StudentResp;
 import com.cc.lab_teach.util.CopyUtil;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -58,9 +62,27 @@ public class StudentService {
         csService.addCS(c_id, stu.getId());
     }
 
-    public List<AllStudent> getAllStudents(int c_id) {
+    public List<StudentPageResp> getAllStudents(int c_id) {
         List<Student> lists = myMapper.selectByCid(c_id);
-        List<AllStudent> students = CopyUtil.copyList(lists, AllStudent.class);
+        List<StudentPageResp> students = CopyUtil.copyList(lists, StudentPageResp.class);
         return students;
+    }
+
+    public PageResp<StudentPageResp> getStudentByPage(PageReq page, int c_id) {
+        PageHelper.startPage(page.getPage(), page.getSize());
+        LOG.info("分页查询班级数据：{}", page);
+
+        List<Student> lists = myMapper.selectByCid(c_id);
+        LOG.info("分页查询到的数据: {}", lists);
+
+        PageInfo<Student> pageInfo = new PageInfo<>(lists);
+        LOG.info("总行数: {}", pageInfo.getTotal()); // 总行数，一般返回给前端
+        LOG.info("总页数: {}", pageInfo.getPages()); // 总页数
+
+        List<StudentPageResp> students = CopyUtil.copyList(lists, StudentPageResp.class);
+        PageResp<StudentPageResp> results = new PageResp<>();
+        results.setTotal(pageInfo.getTotal());
+        results.setList(students);
+        return results;
     }
 }

@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cc.lab_teach.mapper.AnswerMapper">
+  <resultMap id="BaseResultMap" type="com.cc.lab_teach.domain.Answer">
+    <id column="a_id" jdbcType="BIGINT" property="aId" />
+    <result column="s_id" jdbcType="CHAR" property="sId" />
+    <result column="h_id" jdbcType="BIGINT" property="hId" />
+    <result column="redo" jdbcType="BIT" property="redo" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.cc.lab_teach.domain.Answer">
+    <result column="correct" jdbcType="LONGVARCHAR" property="correct" />
+    <result column="result" jdbcType="LONGVARCHAR" property="result" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    a_id, s_id, h_id, redo
+  </sql>
+  <sql id="Blob_Column_List">
+    correct, `result`
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="com.cc.lab_teach.domain.AnswerExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from answer
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="com.cc.lab_teach.domain.AnswerExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from answer
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from answer
+    where a_id = #{aId,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from answer
+    where a_id = #{aId,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.cc.lab_teach.domain.AnswerExample">
+    delete from answer
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.cc.lab_teach.domain.Answer">
+    insert into answer (a_id, s_id, h_id, redo, 
+      correct, `result`)
+    values (#{aId,jdbcType=BIGINT}, #{sId,jdbcType=CHAR}, #{hId,jdbcType=BIGINT}, #{redo,jdbcType=BIT}, 
+      #{correct,jdbcType=LONGVARCHAR}, #{result,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.cc.lab_teach.domain.Answer">
+    insert into answer
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="aId != null">
+        a_id,
+      </if>
+      <if test="sId != null">
+        s_id,
+      </if>
+      <if test="hId != null">
+        h_id,
+      </if>
+      <if test="redo != null">
+        redo,
+      </if>
+      <if test="correct != null">
+        correct,
+      </if>
+      <if test="result != null">
+        `result`,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="aId != null">
+        #{aId,jdbcType=BIGINT},
+      </if>
+      <if test="sId != null">
+        #{sId,jdbcType=CHAR},
+      </if>
+      <if test="hId != null">
+        #{hId,jdbcType=BIGINT},
+      </if>
+      <if test="redo != null">
+        #{redo,jdbcType=BIT},
+      </if>
+      <if test="correct != null">
+        #{correct,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="result != null">
+        #{result,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.cc.lab_teach.domain.AnswerExample" resultType="java.lang.Long">
+    select count(*) from answer
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update answer
+    <set>
+      <if test="record.aId != null">
+        a_id = #{record.aId,jdbcType=BIGINT},
+      </if>
+      <if test="record.sId != null">
+        s_id = #{record.sId,jdbcType=CHAR},
+      </if>
+      <if test="record.hId != null">
+        h_id = #{record.hId,jdbcType=BIGINT},
+      </if>
+      <if test="record.redo != null">
+        redo = #{record.redo,jdbcType=BIT},
+      </if>
+      <if test="record.correct != null">
+        correct = #{record.correct,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.result != null">
+        `result` = #{record.result,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update answer
+    set a_id = #{record.aId,jdbcType=BIGINT},
+      s_id = #{record.sId,jdbcType=CHAR},
+      h_id = #{record.hId,jdbcType=BIGINT},
+      redo = #{record.redo,jdbcType=BIT},
+      correct = #{record.correct,jdbcType=LONGVARCHAR},
+      `result` = #{record.result,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update answer
+    set a_id = #{record.aId,jdbcType=BIGINT},
+      s_id = #{record.sId,jdbcType=CHAR},
+      h_id = #{record.hId,jdbcType=BIGINT},
+      redo = #{record.redo,jdbcType=BIT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.cc.lab_teach.domain.Answer">
+    update answer
+    <set>
+      <if test="sId != null">
+        s_id = #{sId,jdbcType=CHAR},
+      </if>
+      <if test="hId != null">
+        h_id = #{hId,jdbcType=BIGINT},
+      </if>
+      <if test="redo != null">
+        redo = #{redo,jdbcType=BIT},
+      </if>
+      <if test="correct != null">
+        correct = #{correct,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="result != null">
+        `result` = #{result,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where a_id = #{aId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.cc.lab_teach.domain.Answer">
+    update answer
+    set s_id = #{sId,jdbcType=CHAR},
+      h_id = #{hId,jdbcType=BIGINT},
+      redo = #{redo,jdbcType=BIT},
+      correct = #{correct,jdbcType=LONGVARCHAR},
+      `result` = #{result,jdbcType=LONGVARCHAR}
+    where a_id = #{aId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.cc.lab_teach.domain.Answer">
+    update answer
+    set s_id = #{sId,jdbcType=CHAR},
+      h_id = #{hId,jdbcType=BIGINT},
+      redo = #{redo,jdbcType=BIT}
+    where a_id = #{aId,jdbcType=BIGINT}
+  </update>
+</mapper>

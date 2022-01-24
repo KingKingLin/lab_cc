@@ -41,26 +41,37 @@
                             </template>
                         </el-upload>
                     </div>
-                    <div class="my-class-main-student-table" v-if="students.length !== 0">
-                        <el-table
-                                :data="students"
-                                border
-                                style="width: 100%">
-                            <el-table-column
-                                    prop="id"
-                                    label="学号"
-                                    width="180">
-                            </el-table-column>
-                            <el-table-column
-                                    prop="name"
-                                    label="姓名"
-                                    width="180">
-                            </el-table-column>
-                        </el-table>
+                    <div class="my-class-student-data-container" v-if="students.length !== 0">
+                        <div class="my-class-main-student-table">
+                            <el-table
+                                    :data="students"
+                                    border
+                                    style="width: 100%;"
+                                    height="434">
+                                <el-table-column
+                                        prop="id"
+                                        label="学号"
+                                        width="180">
+                                </el-table-column>
+                                <el-table-column
+                                        prop="name"
+                                        label="姓名"
+                                        width="180">
+                                </el-table-column>
+                            </el-table>
+                        </div>
+                        <el-pagination
+                                background
+                                layout="prev, pager, next"
+                                :total="page.total"
+                                :page-size="page.size"
+                                :pager-count="page.count"
+                                @current-change="currentChange">
+                        </el-pagination>
                     </div>
                     <el-empty :image-size="100" description="暂无学生信息, 请先导入！" v-else></el-empty>
                 </div>
-                <el-empty :image-size="100" description="请先选择对应的班级信息" v-else></el-empty>
+                <el-empty :image-size="100" description="请先选择对应的班级" v-else></el-empty>
             </div>
         </div>
     </div>
@@ -85,7 +96,13 @@
             return {
                 classes: [],
                 students: [],
-                activeIndex: -1
+                activeIndex: -1,
+                page: {
+                    pageNum: 1,
+                    size: 8,
+                    count: 5,
+                    total: Number, // total 是后端返回的
+                }
             };
         },
         mounted() {
@@ -96,7 +113,7 @@
             // 请求 classes[] 数据
             async getClasses() {
                 console.log("正在请求班级信息")
-                const {data: res} = await axios.get('/teacher/getAllClasses', {
+                const {data: res} = await axios.get('/teacher/all-classes', {
                     params: {
                         id: this.user.id
                     }
@@ -120,7 +137,7 @@
                         spinner: 'el-icon-loading',
                         background: 'rgba(0, 0, 0, 0.7)'
                     });
-                    const {data: res} = await axios.get('/teacher/addClasses', {
+                    const {data: res} = await axios.get('/teacher/add-class', {
                         params: {
                             id: this.user.id,
                             name: value
@@ -149,9 +166,15 @@
             async getStudents(i, id) {
                 this.activeIndex = i
                 // 查询学生信息
-                const {data: res} = await axios.get('/student/getAllStudents/' + id);
+                const {data: res} = await axios.get('/student/part/' + id, {
+                    params: {
+                        page: this.page.pageNum,
+                        size: this.page.size
+                    }
+                })
                 if (res.success) {
-                    this.students = res.content
+                    this.students = res.content.list
+                    this.page.total = res.content.total
                 }
             },
             dropClass() {
@@ -176,7 +199,7 @@
                     background: 'rgba(0, 0, 0, 0.7)'
                 })
                 for (const params of result) {
-                    const {data: res} = await axios.get('/student/addStudent/' + id, {
+                    const {data: res} = await axios.get('/student/add/' + id, {
                         params
                     })
                     if (!res.success) {
@@ -187,6 +210,12 @@
                 // 遍历完, 如果没有错误, 则请求所有的学生数据
                 await this.getStudents(this.activeIndex, id)
                 loading.close(); // 不管创建与否都要关闭 loading 效果
+            },
+            async currentChange(e) {
+                // console.log("页码: " + e)
+                // console.log("currentChange")
+                this.page.pageNum = e
+                await this.getStudents(this.activeIndex, this.classes[this.activeIndex].id)
             }
         }
     }
@@ -283,5 +312,11 @@
 
     .el-upload__tip {
         transform: translateX(33.33%);
+    }
+
+    .my-class-student-data-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
 </style>
