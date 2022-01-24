@@ -1126,3 +1126,191 @@
    </style>
    ```
 
+## day5 教学管理页面的开发
+
+1. 修改 day4 班级管理页面开发时，一次性读取所有班级信息，导致页面冗长
+
+   1. 后端集成 PageHelper 插件，做分页管理
+
+      ```xml
+      <!-- pagehelper 插件 -->
+      <dependency>
+          <groupId>com.github.pagehelper</groupId>
+          <artifactId>pagehelper-spring-boot-starter</artifactId>
+          <version>1.2.13</version>
+      </dependency>
+      ```
+
+      <font color='crimson'>注意：PageHelper 如果报错（ 循环依赖 ）的异常，可能是因为 Spring 和 PageHelper 版本不兼容的关系，如这里 pagehelper( 1.2.13 ) 就与 Spring ( 2.6.4 ) 不兼容</font>
+
+   2. 在后端查询时，使用 PageHelper 做分页管理
+
+      - pagehelper 会自动找寻第一个 select 语句，在其后面追加 limit ? ,? 语句；同时，会执行一次 select count(0) ... 进行条目统计
+
+      - 下面是代码示例：
+
+        ```java
+        public PageResp<StudentPageResp> getStudentByPage(PageReq page, int c_id) {
+            PageHelper.startPage(page.getPage(), page.getSize());
+            LOG.info("分页查询班级数据：{}", page);
+        
+            List<Student> lists = myMapper.selectByCid(c_id);
+            LOG.info("分页查询到的数据: {}", lists);
+        
+            PageInfo<Student> pageInfo = new PageInfo<>(lists);
+            LOG.info("总行数: {}", pageInfo.getTotal()); // 总行数，一般返回给前端
+            LOG.info("总页数: {}", pageInfo.getPages()); // 总页数
+        
+            List<StudentPageResp> students = CopyUtil.copyList(lists, StudentPageResp.class);
+            PageResp<StudentPageResp> results = new PageResp<>();
+            results.setTotal(pageInfo.getTotal());
+            results.setSize(pageInfo.getPages());
+            results.setList(students);
+            return results;
+        }
+        ```
+
+   3. 班级管理页面做分页管理，使用 element-ui 的分页管理工具
+
+      ```vue
+      <template>
+          <el-pagination
+                         background
+                         layout="prev, pager, next"
+                         :total="page.total"
+                         :page-size="page.size"
+                         :pager-count="page.count"
+                         @current-change="currentChange">
+          </el-pagination>
+      </template>
+      <script>
+      	export default {
+              name: 'xxx',
+              methods: {
+                  async currentChange(e) {
+                      // console.log("页码: " + e)
+                      // console.log("currentChange")
+                      this.page.pageNum = e
+                      await this.getStudents(this.activeIndex, this.classes[this.activeIndex].id)
+                  }
+              }
+          }
+      </script>
+      ```
+
+   4. 教学管理页面，添加一个下拉列表，完成可以选择上课班级
+
+      - <font color='crimson'>这里有一个问题就是：是不是该将所有的班级一次性都查询出来？</font>
+
+        下拉列表，选择上课的班级，即需要一开始就去请求班级信息
+        用下拉列表的问题： 如果班级信息很多，会导致选项条超出页面范围？
+        如何解决？
+        ==用表格？分页请求班级数据？==
+        <font color='crimson'>**或者下拉列表中添加一条记录：下一页，上一页，或者搜索功能**</font>
+
+      - 因此这里的代码如下所示：
+
+        ```vue
+        <template>
+            <div>
+                <my-head></my-head>
+                <div class="my-teach-container">
+                    <!-- 下拉列表，选择上课的班级，即需要一开始就去请求班级信息 -->
+                    <!--
+                        用下拉列表的问题： 如果班级信息很多，会导致选项条超出页面范围？
+                        如何解决？
+                        用表格？分页请求班级数据？
+                        或者下拉列表中添加一条记录：下一页，上一页，或者搜索功能
+                    -->
+                    <el-dropdown @command="handleCommand">
+                        <span class="el-dropdown-link">
+                        {{activeIndex === -1 ? '请选择上课的班级' : classes[activeIndex].name}}<i class="el-icon-arrow-down el-icon--right"></i>
+                        </span>
+                        <el-dropdown-menu slot="dropdown">
+                            <el-dropdown-item command="pre" :disabled="page.pageNum === 1">上一页</el-dropdown-item>
+                            <el-dropdown-item v-for="(item, i) in classes" :key="i" :command="item.id+','+i" :disabled="i === activeIndex">{{item.name}}</el-dropdown-item>
+                            <el-dropdown-item command="next" :disabled="page.pageNum === page.pages">下一页</el-dropdown-item>
+                        </el-dropdown-menu>
+                    </el-dropdown>
+                </div>
+            </div>
+        </template>
+        
+        <script>
+            import myHead from '../../../components/teacher/my-head.vue'
+            import { mapState } from 'vuex'
+            import axios from "axios";
+        
+            export default {
+                name: 'my-teach',
+                components: {
+                    myHead
+                },
+                computed: {
+                    ...mapState('m_user', ['user'])
+                },
+                data() {
+                    return {
+                        classes: [],
+                        activeIndex: -1,
+                        page: {
+                            pageNum: 1,
+                            size: 10,
+                            pages: Number, // 总页数, 从后端获取
+                            total: Number, // 总条目数，从后端获取
+                        }
+                    }
+                },
+                mounted() {
+                    // 初始时便加载班级信息
+                    this.getPartClasses()
+                },
+                methods: {
+                    // 请求 classes[] 数据
+                    async getPartClasses() {
+                        console.log("正在请求班级信息")
+                        const {data: res} = await axios.get('/teacher/part-classes', {
+                            params: {
+                                id: this.user.id,
+                                page: this.page.pageNum,
+                                size: this.page.size
+                            }
+                        })
+                        if (res.success) {
+                            this.classes = res.content.list
+                            this.page.total = res.content.total
+                            this.page.pages = res.content.size
+                        } else {
+                            this.classes = []
+                            console.error("请求班级信息失败")
+                        }
+                    },
+                    handleCommand(e) {
+                        console.log(e)
+                        if (e === 'pre') { // 点击上一页
+                            this.page.pageNum -= 1
+                            this.getPartClasses()
+                            return
+                        }
+                        if (e === 'next') { // 下一页
+                            this.page.pageNum += 1
+                            this.getPartClasses()
+                            return
+                        }
+                        // 请求改班级的实验信息，如 实验一，实验二，实验三
+                        const split = String(e).split(',');
+                        const id = split[0]
+                        this.activeIndex = Number(split[1])
+                    }
+                }
+            }
+        </script>
+        
+        <style>
+            .my-teach-container {
+                margin-top: 20px;
+            }
+        </style>
+        ```
+
+      - 后端添加对应接口，根据 <font color='crimson'>教工号</font> 以及 <font color='crimson'>分页条件</font> 查询部分班级信息，最后选择对应的班级信息，则可以开始上课（ 发布实验题目<<font color='crimson'>以 word 的形式 或者 粘贴题目，也就是富文本形式</font>>，和 批阅题目等功能 ）
