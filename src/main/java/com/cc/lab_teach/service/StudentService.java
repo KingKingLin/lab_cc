@@ -64,8 +64,7 @@ public class StudentService {
 
     public List<StudentPageResp> getAllStudents(int c_id) {
         List<Student> lists = myMapper.selectByCid(c_id);
-        List<StudentPageResp> students = CopyUtil.copyList(lists, StudentPageResp.class);
-        return students;
+        return CopyUtil.copyList(lists, StudentPageResp.class);
     }
 
     public PageResp<StudentPageResp> getStudentByPage(PageReq page, int c_id) {
@@ -82,6 +81,7 @@ public class StudentService {
         List<StudentPageResp> students = CopyUtil.copyList(lists, StudentPageResp.class);
         PageResp<StudentPageResp> results = new PageResp<>();
         results.setTotal(pageInfo.getTotal());
+        results.setSize(pageInfo.getPages());
         results.setList(students);
         return results;
     }

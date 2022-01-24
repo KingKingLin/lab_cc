@@ -6,8 +6,12 @@ import com.cc.lab_teach.exception.BusinessException;
 import com.cc.lab_teach.exception.BusinessExceptionCode;
 import com.cc.lab_teach.mapper.ClassesMapper;
 import com.cc.lab_teach.mapper.MyMapper;
+import com.cc.lab_teach.req.PageReq;
 import com.cc.lab_teach.resp.ClassesResp;
+import com.cc.lab_teach.resp.PageResp;
 import com.cc.lab_teach.util.CopyUtil;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -85,5 +89,28 @@ public class ClassesService {
         List<Classes> list = myMapper.getAllClasses(id);
         List<ClassesResp> resps = CopyUtil.copyList(list, ClassesResp.class);
         return resps;
+    }
+
+    public PageResp<ClassesResp> getPartClasses(String id, PageReq page) {
+        LOG.info("教工号为: {} 请求查询跟其有关的部分 {} 班级信息", id, page);
+
+        // 设置分页条件
+        PageHelper.startPage(page.getPage(), page.getSize());
+
+        // 从数据库中查询结果
+        List<Classes> list = myMapper.getAllClasses(id);
+        List<ClassesResp> resps = CopyUtil.copyList(list, ClassesResp.class);
+
+        // 分页数据
+        PageInfo<Classes> pageInfo = new PageInfo<>(list);
+        LOG.info("总页数: {}", pageInfo.getTotal());
+        LOG.info("总页数: {}", pageInfo.getPages()); // 总页数
+
+        // 封装数据对象
+        PageResp<ClassesResp> result = new PageResp<>();
+        result.setList(resps);
+        result.setTotal(pageInfo.getTotal());
+        result.setSize(pageInfo.getPages());
+        return result;
     }
 }

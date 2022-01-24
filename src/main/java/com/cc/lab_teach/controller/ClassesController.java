@@ -1,7 +1,9 @@
 package com.cc.lab_teach.controller;
 
+import com.cc.lab_teach.req.PageReq;
 import com.cc.lab_teach.resp.ClassesResp;
 import com.cc.lab_teach.resp.CommonResp;
+import com.cc.lab_teach.resp.PageResp;
 import com.cc.lab_teach.service.ClassesService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +45,20 @@ public class ClassesController {
     public CommonResp<List<ClassesResp>> getAllClasses(String id) {
         List<ClassesResp> classes = classesService.getAllClasses(id);
         CommonResp<List<ClassesResp>> resp = new CommonResp<>();
+        resp.setContent(classes);
+        resp.setMessage("查询班级数据成功");
+        return resp;
+    }
+
+    /**
+     * 根据教工号, 查询该教师管理的部分班级, 请求路径: '/teacher/part-classes?id=xxx&page=xxx&size=xxx
+     * @param id 教工号
+     * @return 班级集合
+     */
+    @GetMapping("/part-classes")
+    public CommonResp<PageResp<ClassesResp>> getPartClasses(String id, PageReq page) {
+        PageResp<ClassesResp> classes = classesService.getPartClasses(id, page);
+        CommonResp<PageResp<ClassesResp>> resp = new CommonResp<>();
         resp.setContent(classes);
         resp.setMessage("查询班级数据成功");
         return resp;

@@ -5,7 +5,17 @@ import java.util.List;
 public class PageResp<T> {
     private long total;
 
+    private long size;
+
     private List<T> list;
+
+    public long getSize() {
+        return size;
+    }
+
+    public void setSize(long size) {
+        this.size = size;
+    }
 
     public long getTotal() {
         return total;
@@ -27,6 +37,7 @@ public class PageResp<T> {
     public String toString() {
         return "PageResp{" +
                 "total=" + total +
+                ", size=" + size +
                 ", list=" + list +
                 '}';
     }

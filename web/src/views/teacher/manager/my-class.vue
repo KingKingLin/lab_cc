@@ -223,7 +223,7 @@
 
 <style>
     .my-class-container {
-        margin: 20px 20px;
+        margin-top: 20px;
     }
 
     .my-class-aside {
