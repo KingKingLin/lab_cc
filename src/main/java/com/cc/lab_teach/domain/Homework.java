@@ -7,6 +7,8 @@ public class Homework {
 
     private String content;
 
+    private String standard;
+
     public Long gethId() {
         return hId;
     }
@@ -31,6 +33,14 @@ public class Homework {
         this.content = content;
     }
 
+    public String getStandard() {
+        return standard;
+    }
+
+    public void setStandard(String standard) {
+        this.standard = standard;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -40,6 +50,7 @@ public class Homework {
         sb.append(", hId=").append(hId);
         sb.append(", eId=").append(eId);
         sb.append(", content=").append(content);
+        sb.append(", standard=").append(standard);
         sb.append("]");
         return sb.toString();
     }

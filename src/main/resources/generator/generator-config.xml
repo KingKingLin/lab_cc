@@ -53,10 +53,10 @@
         <!-- 班级学生关联表 -->
         <!-- <table tableName="c_s"/>-->
         <!-- 实验表 -->
-        <!-- <table tableName="experiment"/>-->
+         <table tableName="experiment"/>
         <!-- 题目表 -->
-        <!-- <table tableName="homework"/>-->
+<!--         <table tableName="homework"/>-->
         <!-- 答案表 -->
-        <table tableName="answer"/>
+<!--        <table tableName="answer"/>-->
     </context>
 </generatorConfiguration>

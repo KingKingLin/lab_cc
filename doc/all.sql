@@ -65,6 +65,7 @@ create table `experiment` (
     `e_id` bigint primary key auto_increment,
     `c_id` int,
     `title` varchar(50), -- 实验的名字，如: ['实验一', '实验二'] 等
+    `deadline` date, -- 截止时间
     foreign key (`c_id`) references `classes`(`id`)
 );
 
@@ -75,6 +76,7 @@ create table `homework` (
     `h_id` bigint primary key auto_increment,
     `e_id` bigint, -- 对应的是哪一个实验
     `content` mediumtext, -- 富文本，存放题目的内容
+    `standard` mediumtext, -- 标准答案
     foreign key (`e_id`) references `experiment`(`e_id`)
 );
 
@@ -86,7 +88,7 @@ create table `answer` (
     `s_id` char(8), -- 学生 id, 一个学生对应一个答案
     `h_id` bigint, -- 外键，homework 表，表示该答案是对应哪一个题目的
     `correct` mediumtext, -- 教师的评阅
-    `result` mediumtext, -- 学生的答案
+    `result` mediumtext, -- 学生的答案，只要这个值不为空，就意味着学生提交了答案
     `redo` boolean default false, -- 是否允许重做
     foreign key (`s_id`) references `student`(`id`),
     foreign key (`h_id`) references `homework`(`h_id`)

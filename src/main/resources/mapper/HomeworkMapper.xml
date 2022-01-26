@@ -7,6 +7,7 @@
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.cc.lab_teach.domain.Homework">
     <result column="content" jdbcType="LONGVARCHAR" property="content" />
+    <result column="standard" jdbcType="LONGVARCHAR" property="standard" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -70,7 +71,7 @@
     h_id, e_id
   </sql>
   <sql id="Blob_Column_List">
-    content
+    content, `standard`
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="com.cc.lab_teach.domain.HomeworkExample" resultMap="ResultMapWithBLOBs">
     select
@@ -121,10 +122,10 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.cc.lab_teach.domain.Homework">
-    insert into homework (h_id, e_id, content
-      )
-    values (#{hId,jdbcType=BIGINT}, #{eId,jdbcType=BIGINT}, #{content,jdbcType=LONGVARCHAR}
-      )
+    insert into homework (h_id, e_id, content, 
+      `standard`)
+    values (#{hId,jdbcType=BIGINT}, #{eId,jdbcType=BIGINT}, #{content,jdbcType=LONGVARCHAR}, 
+      #{standard,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.cc.lab_teach.domain.Homework">
     insert into homework
@@ -138,6 +139,9 @@
       <if test="content != null">
         content,
       </if>
+      <if test="standard != null">
+        `standard`,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="hId != null">
@@ -148,6 +152,9 @@
       </if>
       <if test="content != null">
         #{content,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="standard != null">
+        #{standard,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -169,6 +176,9 @@
       <if test="record.content != null">
         content = #{record.content,jdbcType=LONGVARCHAR},
       </if>
+      <if test="record.standard != null">
+        `standard` = #{record.standard,jdbcType=LONGVARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -178,7 +188,8 @@
     update homework
     set h_id = #{record.hId,jdbcType=BIGINT},
       e_id = #{record.eId,jdbcType=BIGINT},
-      content = #{record.content,jdbcType=LONGVARCHAR}
+      content = #{record.content,jdbcType=LONGVARCHAR},
+      `standard` = #{record.standard,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -200,13 +211,17 @@
       <if test="content != null">
         content = #{content,jdbcType=LONGVARCHAR},
       </if>
+      <if test="standard != null">
+        `standard` = #{standard,jdbcType=LONGVARCHAR},
+      </if>
     </set>
     where h_id = #{hId,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.cc.lab_teach.domain.Homework">
     update homework
     set e_id = #{eId,jdbcType=BIGINT},
-      content = #{content,jdbcType=LONGVARCHAR}
+      content = #{content,jdbcType=LONGVARCHAR},
+      `standard` = #{standard,jdbcType=LONGVARCHAR}
     where h_id = #{hId,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.cc.lab_teach.domain.Homework">

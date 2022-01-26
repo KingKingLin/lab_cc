@@ -1,11 +1,9 @@
-package com.cc.lab_teach.domain;
+package com.cc.lab_teach.resp;
 
 import java.util.Date;
 
-public class Experiment {
+public class ExperimentResp {
     private Long eId;
-
-    private Integer cId;
 
     private String title;
 
@@ -17,14 +15,6 @@ public class Experiment {
 
     public void seteId(Long eId) {
         this.eId = eId;
-    }
-
-    public Integer getcId() {
-        return cId;
-    }
-
-    public void setcId(Integer cId) {
-        this.cId = cId;
     }
 
     public String getTitle() {
@@ -50,7 +40,6 @@ public class Experiment {
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
         sb.append(", eId=").append(eId);
-        sb.append(", cId=").append(cId);
         sb.append(", title=").append(title);
         sb.append(", deadline=").append(deadline);
         sb.append("]");

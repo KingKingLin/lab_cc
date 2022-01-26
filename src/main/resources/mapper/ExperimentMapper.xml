@@ -5,6 +5,7 @@
     <id column="e_id" jdbcType="BIGINT" property="eId" />
     <result column="c_id" jdbcType="INTEGER" property="cId" />
     <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="deadline" jdbcType="DATE" property="deadline" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -65,7 +66,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    e_id, c_id, title
+    e_id, c_id, title, deadline
   </sql>
   <select id="selectByExample" parameterType="com.cc.lab_teach.domain.ExperimentExample" resultMap="BaseResultMap">
     select
@@ -98,10 +99,10 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.cc.lab_teach.domain.Experiment">
-    insert into experiment (e_id, c_id, title
-      )
-    values (#{eId,jdbcType=BIGINT}, #{cId,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR}
-      )
+    insert into experiment (e_id, c_id, title, 
+      deadline)
+    values (#{eId,jdbcType=BIGINT}, #{cId,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR}, 
+      #{deadline,jdbcType=DATE})
   </insert>
   <insert id="insertSelective" parameterType="com.cc.lab_teach.domain.Experiment">
     insert into experiment
@@ -115,6 +116,9 @@
       <if test="title != null">
         title,
       </if>
+      <if test="deadline != null">
+        deadline,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="eId != null">
@@ -125,6 +129,9 @@
       </if>
       <if test="title != null">
         #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="deadline != null">
+        #{deadline,jdbcType=DATE},
       </if>
     </trim>
   </insert>
@@ -146,6 +153,9 @@
       <if test="record.title != null">
         title = #{record.title,jdbcType=VARCHAR},
       </if>
+      <if test="record.deadline != null">
+        deadline = #{record.deadline,jdbcType=DATE},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -155,7 +165,8 @@
     update experiment
     set e_id = #{record.eId,jdbcType=BIGINT},
       c_id = #{record.cId,jdbcType=INTEGER},
-      title = #{record.title,jdbcType=VARCHAR}
+      title = #{record.title,jdbcType=VARCHAR},
+      deadline = #{record.deadline,jdbcType=DATE}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -169,13 +180,17 @@
       <if test="title != null">
         title = #{title,jdbcType=VARCHAR},
       </if>
+      <if test="deadline != null">
+        deadline = #{deadline,jdbcType=DATE},
+      </if>
     </set>
     where e_id = #{eId,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.cc.lab_teach.domain.Experiment">
     update experiment
     set c_id = #{cId,jdbcType=INTEGER},
-      title = #{title,jdbcType=VARCHAR}
+      title = #{title,jdbcType=VARCHAR},
+      deadline = #{deadline,jdbcType=DATE}
     where e_id = #{eId,jdbcType=BIGINT}
   </update>
 </mapper>

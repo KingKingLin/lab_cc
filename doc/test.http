@@ -26,4 +26,12 @@ Accept: application/json
 GET http://localhost:8888/teacher/part-classes?id=20010609&page=1&size=8
 Accept: application/json
 
+### 新建实验1
+GET http://localhost:8888/teacher/add-experiment/8?title=实验1&deadline=
+Accept: application/json
+
+###
+GET http://localhost:8888/teacher/all-experiments/8
+Accept: application/json
+
 ###
