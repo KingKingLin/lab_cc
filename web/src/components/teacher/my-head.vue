@@ -10,9 +10,9 @@
             <div class="el-breadcrumb">
                 <span>欢迎 {{user.name}} 老师</span>
                 <el-divider direction="vertical"></el-divider>
-                <span @click="resetPassword">修改密码</span>
+                <el-button type="text" @click="resetPassword" style="color: black;">修改密码</el-button>
                 <el-divider direction="vertical"></el-divider>
-                <span @click="logout">退出登录</span>
+                <el-button type="text" @click="logout" style="color: black;">退出登录</el-button>
             </div>
         </el-header>
         <my-resetpassword @sendMessage="sendMessage" ref="child"></my-resetpassword>

@@ -164,6 +164,7 @@
                 })
             },
             async getStudents(i, id) {
+                if (this.activeIndex === i) return
                 this.activeIndex = i
                 // 查询学生信息
                 const {data: res} = await axios.get('/student/part/' + id, {

@@ -65,7 +65,7 @@ create table `experiment` (
     `e_id` bigint primary key auto_increment,
     `c_id` int,
     `title` varchar(50), -- 实验的名字，如: ['实验一', '实验二'] 等
-    `deadline` date, -- 截止时间
+    `deadline` timestamp, -- 截止时间，timestamp 能够存储 日期+时分秒（date 只有日期，time只有时间）
     foreign key (`c_id`) references `classes`(`id`)
 );
 

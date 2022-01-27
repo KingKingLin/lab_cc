@@ -60,7 +60,7 @@
             </div>
         </div>
         <span slot="footer" class="dialog-footer">
-                <el-button size="small" @click="dialogVisible = false">取消</el-button>
+                <el-button size="small" @click="remake_data();dialogVisible = false">取消</el-button>
                 <el-button type="primary" size="small" @click="confirm">确定</el-button>
             </span>
     </el-dialog>
@@ -96,10 +96,7 @@
                     .then(_ => {
                         // console.log("确认关闭")
                         // 关闭后将数据重置
-                        this.mine.pre_password = ''
-                        this.mine.new_password = ''
-                        this.mine.confirm_password = ''
-                        //
+                        this.remake_data()
                         done();
                     })
                     .catch(_ => {});
@@ -148,12 +145,15 @@
                     name: this.mine.name,
                     password: this.mine.new_password
                 })
+                this.remake_data()
+                // 对话框消失
+                this.dialogVisible = false
+            },
+            remake_data() {
                 // 确认后，重置数据
                 this.mine.pre_password = ''
                 this.mine.new_password = ''
                 this.mine.confirm_password = ''
-                // 对话框消失
-                this.dialogVisible = false
             }
         }
     }

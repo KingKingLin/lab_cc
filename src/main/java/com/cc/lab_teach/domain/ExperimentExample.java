@@ -2,7 +2,6 @@ package com.cc.lab_teach.domain;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 public class ExperimentExample {
@@ -104,32 +103,6 @@ public class ExperimentExample {
                 throw new RuntimeException("Between values for " + property + " cannot be null");
             }
             criteria.add(new Criterion(condition, value1, value2));
-        }
-
-        protected void addCriterionForJDBCDate(String condition, Date value, String property) {
-            if (value == null) {
-                throw new RuntimeException("Value for " + property + " cannot be null");
-            }
-            addCriterion(condition, new java.sql.Date(value.getTime()), property);
-        }
-
-        protected void addCriterionForJDBCDate(String condition, List<Date> values, String property) {
-            if (values == null || values.size() == 0) {
-                throw new RuntimeException("Value list for " + property + " cannot be null or empty");
-            }
-            List<java.sql.Date> dateList = new ArrayList<>();
-            Iterator<Date> iter = values.iterator();
-            while (iter.hasNext()) {
-                dateList.add(new java.sql.Date(iter.next().getTime()));
-            }
-            addCriterion(condition, dateList, property);
-        }
-
-        protected void addCriterionForJDBCDate(String condition, Date value1, Date value2, String property) {
-            if (value1 == null || value2 == null) {
-                throw new RuntimeException("Between values for " + property + " cannot be null");
-            }
-            addCriterion(condition, new java.sql.Date(value1.getTime()), new java.sql.Date(value2.getTime()), property);
         }
 
         public Criteria andEIdIsNull() {
@@ -333,52 +306,52 @@ public class ExperimentExample {
         }
 
         public Criteria andDeadlineEqualTo(Date value) {
-            addCriterionForJDBCDate("deadline =", value, "deadline");
+            addCriterion("deadline =", value, "deadline");
             return (Criteria) this;
         }
 
         public Criteria andDeadlineNotEqualTo(Date value) {
-            addCriterionForJDBCDate("deadline <>", value, "deadline");
+            addCriterion("deadline <>", value, "deadline");
             return (Criteria) this;
         }
 
         public Criteria andDeadlineGreaterThan(Date value) {
-            addCriterionForJDBCDate("deadline >", value, "deadline");
+            addCriterion("deadline >", value, "deadline");
             return (Criteria) this;
         }
 
         public Criteria andDeadlineGreaterThanOrEqualTo(Date value) {
-            addCriterionForJDBCDate("deadline >=", value, "deadline");
+            addCriterion("deadline >=", value, "deadline");
             return (Criteria) this;
         }
 
         public Criteria andDeadlineLessThan(Date value) {
-            addCriterionForJDBCDate("deadline <", value, "deadline");
+            addCriterion("deadline <", value, "deadline");
             return (Criteria) this;
         }
 
         public Criteria andDeadlineLessThanOrEqualTo(Date value) {
-            addCriterionForJDBCDate("deadline <=", value, "deadline");
+            addCriterion("deadline <=", value, "deadline");
             return (Criteria) this;
         }
 
         public Criteria andDeadlineIn(List<Date> values) {
-            addCriterionForJDBCDate("deadline in", values, "deadline");
+            addCriterion("deadline in", values, "deadline");
             return (Criteria) this;
         }
 
         public Criteria andDeadlineNotIn(List<Date> values) {
-            addCriterionForJDBCDate("deadline not in", values, "deadline");
+            addCriterion("deadline not in", values, "deadline");
             return (Criteria) this;
         }
 
         public Criteria andDeadlineBetween(Date value1, Date value2) {
-            addCriterionForJDBCDate("deadline between", value1, value2, "deadline");
+            addCriterion("deadline between", value1, value2, "deadline");
             return (Criteria) this;
         }
 
         public Criteria andDeadlineNotBetween(Date value1, Date value2) {
-            addCriterionForJDBCDate("deadline not between", value1, value2, "deadline");
+            addCriterion("deadline not between", value1, value2, "deadline");
             return (Criteria) this;
         }
     }

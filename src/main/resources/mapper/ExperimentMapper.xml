@@ -5,7 +5,7 @@
     <id column="e_id" jdbcType="BIGINT" property="eId" />
     <result column="c_id" jdbcType="INTEGER" property="cId" />
     <result column="title" jdbcType="VARCHAR" property="title" />
-    <result column="deadline" jdbcType="DATE" property="deadline" />
+    <result column="deadline" jdbcType="TIMESTAMP" property="deadline" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -102,7 +102,7 @@
     insert into experiment (e_id, c_id, title, 
       deadline)
     values (#{eId,jdbcType=BIGINT}, #{cId,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR}, 
-      #{deadline,jdbcType=DATE})
+      #{deadline,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" parameterType="com.cc.lab_teach.domain.Experiment">
     insert into experiment
@@ -131,7 +131,7 @@
         #{title,jdbcType=VARCHAR},
       </if>
       <if test="deadline != null">
-        #{deadline,jdbcType=DATE},
+        #{deadline,jdbcType=TIMESTAMP},
       </if>
     </trim>
   </insert>
@@ -154,7 +154,7 @@
         title = #{record.title,jdbcType=VARCHAR},
       </if>
       <if test="record.deadline != null">
-        deadline = #{record.deadline,jdbcType=DATE},
+        deadline = #{record.deadline,jdbcType=TIMESTAMP},
       </if>
     </set>
     <if test="_parameter != null">
@@ -166,7 +166,7 @@
     set e_id = #{record.eId,jdbcType=BIGINT},
       c_id = #{record.cId,jdbcType=INTEGER},
       title = #{record.title,jdbcType=VARCHAR},
-      deadline = #{record.deadline,jdbcType=DATE}
+      deadline = #{record.deadline,jdbcType=TIMESTAMP}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -181,7 +181,7 @@
         title = #{title,jdbcType=VARCHAR},
       </if>
       <if test="deadline != null">
-        deadline = #{deadline,jdbcType=DATE},
+        deadline = #{deadline,jdbcType=TIMESTAMP},
       </if>
     </set>
     where e_id = #{eId,jdbcType=BIGINT}
@@ -190,7 +190,7 @@
     update experiment
     set c_id = #{cId,jdbcType=INTEGER},
       title = #{title,jdbcType=VARCHAR},
-      deadline = #{deadline,jdbcType=DATE}
+      deadline = #{deadline,jdbcType=TIMESTAMP}
     where e_id = #{eId,jdbcType=BIGINT}
   </update>
 </mapper>
