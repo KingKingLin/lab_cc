@@ -31,7 +31,15 @@ GET http://localhost:8888/teacher/add-experiment/8?title=实验1&deadline=
 Accept: application/json
 
 ###
-GET http://localhost:8888/teacher/all-experiments/8
+GET http://localhost:8888/teacher/all-experiments/1
+Accept: application/json
+
+### int c_id, long e_id, page, size
+GET http://localhost:8888/teacher/get-details?c_id=8&e_id=4&page=1&size=8
+Accept: application/json
+
+### /all/experiments
+GET http://localhost:8888/student/all/experiments?id=20201269
 Accept: application/json
 
 ###

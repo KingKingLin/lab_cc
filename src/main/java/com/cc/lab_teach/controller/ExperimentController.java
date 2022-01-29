@@ -1,7 +1,10 @@
 package com.cc.lab_teach.controller;
 
+import com.cc.lab_teach.req.PageReq;
 import com.cc.lab_teach.resp.CommonResp;
 import com.cc.lab_teach.resp.ExperimentResp;
+import com.cc.lab_teach.resp.PageResp;
+import com.cc.lab_teach.resp.StudentDetailResp;
 import com.cc.lab_teach.service.ExperimentService;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.slf4j.Logger;
@@ -53,6 +56,16 @@ public class ExperimentController {
         CommonResp<Boolean> resp = new CommonResp<>();
         resp.setContent(true);
         resp.setMessage("班级 " + c_id + " 创建实验 【" + title + "】 成功");
+        return resp;
+    }
+
+    @GetMapping("/get-details")
+    public CommonResp<PageResp<StudentDetailResp>> getDetails(int c_id, long e_id, PageReq page) {
+        LOG.info("获取班级【{}】 所有学生实验的详细信息", c_id);
+        PageResp<StudentDetailResp> result = experimentService.getDetails(c_id, e_id, page);
+        CommonResp<PageResp<StudentDetailResp>> resp = new CommonResp<>();
+        resp.setContent(result);
+        resp.setMessage("查询成功");
         return resp;
     }
 }

@@ -19,17 +19,79 @@
                     <el-dropdown-menu slot="dropdown">
                         <el-dropdown-item command="pre" :disabled="page.pageNum === 1">上一页</el-dropdown-item>
                         <el-dropdown-item v-for="(item, i) in classes" :key="i" :command="item.id+','+i" :disabled="item.id === show.id">{{item.name}}</el-dropdown-item>
-                        <el-dropdown-item command="next" :disabled="page.pageNum === page.pages">下一页</el-dropdown-item>
+                        <el-dropdown-item command="next" :disabled="page.pageNum >= page.pages">下一页</el-dropdown-item>
                     </el-dropdown-menu>
                 </el-dropdown>
             </div>
-            <div class="my-teach-aside">
-                <div v-if="experiment.length !== 0" class="my-teach-aside-container">
-                    <div :class="['my-teach-aside-item', i === activeIndex ? 'active' : '']" v-for="(item, i) in experiment" :key="i">
-                        {{item.title}}
+            <div style="display: flex; margin-top: 10px;">
+                <div class="my-teach-aside">
+                    <div v-if="experiment.length !== 0" class="my-teach-aside-container">
+                        <div :class="['my-teach-aside-item', i === experimentIndex ? 'active' : '']" v-for="(item, i) in experiment" :key="i" @click="selectDetails(i)">
+                            {{item.title}}
+                        </div>
                     </div>
+                    <el-empty :image-size="100" description="暂无任何实验信息" v-else></el-empty>
                 </div>
-                <el-empty :image-size="100" description="暂无任何实验信息" v-else></el-empty>
+                <div class="my-teach-main" v-if="students.length !== 0">
+                    <div class="my-class-main-student-table">
+                        <el-table
+                                :data="students"
+                                border
+                                style="width: 100%;"
+                                height="474">
+                            <el-table-column
+                                    prop="id"
+                                    label="学号"
+                                    width="180">
+                            </el-table-column>
+                            <el-table-column
+                                    prop="name"
+                                    label="姓名"
+                                    width="180">
+                            </el-table-column>
+                            <el-table-column
+                                    prop="results"
+                                    label="实验完成情况"
+                                    width="180">
+                            </el-table-column>
+                            <el-table-column
+                                    prop="corrects"
+                                    label="评阅情况"
+                                    width="180">
+                            </el-table-column>
+                            <el-table-column label="操作">
+                                <template slot-scope="scope">
+                                    <el-button
+                                            size="mini"
+                                            @click="handle(scope.$index, scope.row)">去评阅</el-button>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                    </div>
+                    <el-pagination
+                            background
+                            layout="prev, pager, next"
+                            :total="page.total"
+                            :page-size="page.size"
+                            :pager-count="page.count"
+                            @current-change="currentChange">
+                    </el-pagination>
+                </div>
+                <div class="my-teach-upload" v-if="students.length !== 0">
+                    <el-upload
+                            class="upload-demo"
+                            action
+                            accept=".doc, .docx, .jpg, .png, .mp4"
+                            :show-file-list="false"
+                            :http-request="httpRequest"
+                    >
+                        <el-button>上传题目</el-button>
+                        <span style="font-size: 11px">
+                            doc/docx/jpg/png/mp4 files
+                        </span>
+                    </el-upload>
+                    <button>发布答案</button>
+                </div>
             </div>
         </div>
         <el-dialog
@@ -58,7 +120,7 @@
 
 <script>
     import myHead from '../../../components/teacher/my-head.vue'
-    import { mapState } from 'vuex'
+    import { mapState, mapMutations } from 'vuex'
     import axios from "axios";
 
     export default {
@@ -67,19 +129,16 @@
             myHead
         },
         computed: {
-            ...mapState('m_user', ['user'])
+            ...mapState('m_user', ['user']),
+            ...mapState('m_myTeach', ['show', 'experiment', 'experimentIndex'])
         },
         data() {
             return {
                 // 班级列表数据
                 classes: [],
-                // 选中的班级
-                show: {}, // {id: xxx, name: xxx}
-                experiment: [], // 实验列表 {eId: xxx, title: xxx, deadline: xxx}
-                activeIndex: -1, // 请求到实验信息后，默认等于 experiment.length - 1，即最后一堂实验课
                 page: {
                     pageNum: 1,
-                    size: 10,
+                    size: 8,
                     pages: Number, // 总页数, 从后端获取
                     total: Number, // 总条目数，从后端获取
                 },
@@ -114,13 +173,17 @@
                         }
                     }],
                 },
+                students: [],
             }
         },
         mounted() {
             // 初始时便加载班级信息
             this.getPartClasses()
+
+            if (this.experimentIndex !== -1) this.selectDetails(this.experimentIndex)
         },
         methods: {
+            ...mapMutations('m_myTeach', ['setExperiment', 'setShow', 'setExperimentIndex']),
             // 请求 classes[] 数据
             async getPartClasses() {
                 console.log("正在请求班级信息")
@@ -157,7 +220,7 @@
                 const split = String(e).split(',');
                 const id = split[0]
 
-                this.show = this.classes[Number(split[1])]
+                this.setShow(this.classes[Number(split[1])])
 
                 await this.getAllExperiments(id)
             },
@@ -166,14 +229,15 @@
                 // /all-experiments/{c_id}
                 const {data: res} = await axios.get('/teacher/all-experiments/' + id)
                 if (res.success) {
-                    this.experiment = res.content
+                    this.setExperiment(res.content)
                     // 默认去展开最新的实验情况
-                    this.activeIndex = this.experiment.length - 1
-                    console.log("activeIndex: " + this.activeIndex)
+                    const lastIndex = this.experiment.length - 1
                     // 模拟点击最新的实验情况
-                    if (this.activeIndex !== -1) { // 即得到的实验列表不为空
-                        console.log("do something... 默认展开最新的实验")
+                    if (lastIndex === -1) { // 得到的是没有实验信息的
+                        this.students = []
+                        return
                     }
+                    await this.selectDetails(lastIndex)
                 }
             },
             // 设置截止时间
@@ -218,6 +282,58 @@
                         done(); // 隐藏对话框
                     })
                     .catch(_ => {});
+            },
+            async selectDetails(i) {
+                this.setExperimentIndex(i)
+                const {data: res} = await axios.get('/teacher/get-details', {
+                    params: {
+                        c_id: this.show.id,
+                        e_id: this.experiment[this.experimentIndex].eId,
+                        page: this.page.pageNum,
+                        size: this.page.size
+                    }
+                })
+                if (res.success) {
+                    this.students = res.content.list
+
+                    this.students.forEach(item => {
+                        if (item.total === 0) {
+                            item.corrects = "未发布题目"
+                            item.results = "未发布题目"
+                        } else {
+                            item.corrects = (item.corrects / item.total * 100) + " %"
+                            item.results = (item.results / item.total * 100) + " %"
+                        }
+                        return item
+                    })
+
+                    this.page.pages = res.content.size
+                    this.page.total = res.content.total
+                }
+                console.log(res)
+            },
+            async currentChange(e) {
+                this.page.pageNum = e
+                await this.selectDetails(this.experimentIndex)
+            },
+            // 去评阅
+            handle(index, row) {
+                // console.log(index, row);
+                this.$router.replace('/teacher/manager/correct?e_id=' + this.experiment[this.experimentIndex].eId + "&s_id=" + row.id)
+            },
+            // 发布答案 or 上传题目
+            async httpRequest(e) {
+                // 要以 表单的形式提交 才可以！！
+                const form = new FormData();
+                // 将 e_id 带上，即是那个实验的题目
+                form.append('e_id', this.experiment[this.experimentIndex].eId)
+                // 将上传的文件附加到表单上
+                form.append('file', e.file)
+                // console.log(form.get('file'))
+                const {data: res} = await axios.post('/teacher/upload', form, {
+                    headers: {'Content-Type': 'multipart/form-data'}
+                })
+                this.$message.success(res.message)
             }
         }
     }
@@ -238,17 +354,15 @@
 
     .my-teach-aside {
         width: 222px;
-        height: 508px;
+        height: 493px;
         display: flex;
         flex-direction: column;
         align-items: center;
         /*border: 2px solid #efefef;*/
-        margin-right: 20px;
     }
 
     .my-teach-aside-container {
         border: 1px solid #efefef;
-        margin-top: 10px;
         overflow-y: scroll;
         height: 100%;
     }
@@ -278,5 +392,21 @@
         overflow: hidden;
         white-space: nowrap; /* 不换行显示 */
         text-overflow: ellipsis; /* 超过一行则显示... */
+    }
+
+    .my-teach-main {
+        margin-left: 10px;
+        margin-bottom: 2px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .my-teach-upload {
+        margin-left: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
     }
 </style>

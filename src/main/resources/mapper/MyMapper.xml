@@ -22,4 +22,40 @@
             select `s_id` from `c_s` where `c_id` = #{c_id}
             )
     </select>
+
+    <select id="getCorrects" resultType="java.lang.Integer">
+        -- 已评阅
+        select count(0) `corrects`
+        from `answer`
+        where `h_id` in (select `h_id` from `homework` where `e_id` = #{e_id})
+          and `correct` is not null
+          and `s_id` = #{s_id}
+    </select>
+
+    <select id="getResults" resultType="java.lang.Integer">
+        -- 已回答
+        select count(0) `results`
+        from `answer`
+        where `h_id` in (select `h_id` from `homework` where `e_id` = #{e_id})
+          and `result` is not null
+          and `s_id` = #{s_id}
+    </select>
+
+    <select id="getTotal" resultType="java.lang.Integer">
+        -- 总题目数
+        select count(0) `total` from `homework` where `e_id` = #{e_id}
+    </select>
+
+    <resultMap id="BaseResultMap" type="com.cc.lab_teach.domain.Experiment">
+        <id column="e_id" jdbcType="BIGINT" property="eId" />
+        <result column="c_id" jdbcType="INTEGER" property="cId" />
+        <result column="title" jdbcType="VARCHAR" property="title" />
+        <result column="deadline" jdbcType="TIMESTAMP" property="deadline" />
+    </resultMap>
+
+    <select id="getExperiments" resultMap="BaseResultMap">
+        select `e_id`, `title`, `deadline`
+        from `experiment`
+        where `c_id` = (select `c_id` from `c_s` where `s_id` = #{id})
+    </select>
 </mapper>

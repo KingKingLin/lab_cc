@@ -4,6 +4,8 @@
   <resultMap id="BaseResultMap" type="com.cc.lab_teach.domain.Homework">
     <id column="h_id" jdbcType="BIGINT" property="hId" />
     <result column="e_id" jdbcType="BIGINT" property="eId" />
+    <result column="content_type" jdbcType="VARCHAR" property="contentType" />
+    <result column="standard_type" jdbcType="VARCHAR" property="standardType" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.cc.lab_teach.domain.Homework">
     <result column="content" jdbcType="LONGVARCHAR" property="content" />
@@ -68,7 +70,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    h_id, e_id
+    h_id, e_id, content_type, standard_type
   </sql>
   <sql id="Blob_Column_List">
     content, `standard`
@@ -122,10 +124,12 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.cc.lab_teach.domain.Homework">
-    insert into homework (h_id, e_id, content, 
-      `standard`)
-    values (#{hId,jdbcType=BIGINT}, #{eId,jdbcType=BIGINT}, #{content,jdbcType=LONGVARCHAR}, 
-      #{standard,jdbcType=LONGVARCHAR})
+    insert into homework (h_id, e_id, content_type, 
+      standard_type, content, `standard`
+      )
+    values (#{hId,jdbcType=BIGINT}, #{eId,jdbcType=BIGINT}, #{contentType,jdbcType=VARCHAR}, 
+      #{standardType,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARCHAR}, #{standard,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="com.cc.lab_teach.domain.Homework">
     insert into homework
@@ -135,6 +139,12 @@
       </if>
       <if test="eId != null">
         e_id,
+      </if>
+      <if test="contentType != null">
+        content_type,
+      </if>
+      <if test="standardType != null">
+        standard_type,
       </if>
       <if test="content != null">
         content,
@@ -149,6 +159,12 @@
       </if>
       <if test="eId != null">
         #{eId,jdbcType=BIGINT},
+      </if>
+      <if test="contentType != null">
+        #{contentType,jdbcType=VARCHAR},
+      </if>
+      <if test="standardType != null">
+        #{standardType,jdbcType=VARCHAR},
       </if>
       <if test="content != null">
         #{content,jdbcType=LONGVARCHAR},
@@ -173,6 +189,12 @@
       <if test="record.eId != null">
         e_id = #{record.eId,jdbcType=BIGINT},
       </if>
+      <if test="record.contentType != null">
+        content_type = #{record.contentType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.standardType != null">
+        standard_type = #{record.standardType,jdbcType=VARCHAR},
+      </if>
       <if test="record.content != null">
         content = #{record.content,jdbcType=LONGVARCHAR},
       </if>
@@ -188,6 +210,8 @@
     update homework
     set h_id = #{record.hId,jdbcType=BIGINT},
       e_id = #{record.eId,jdbcType=BIGINT},
+      content_type = #{record.contentType,jdbcType=VARCHAR},
+      standard_type = #{record.standardType,jdbcType=VARCHAR},
       content = #{record.content,jdbcType=LONGVARCHAR},
       `standard` = #{record.standard,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
@@ -197,7 +221,9 @@
   <update id="updateByExample" parameterType="map">
     update homework
     set h_id = #{record.hId,jdbcType=BIGINT},
-      e_id = #{record.eId,jdbcType=BIGINT}
+      e_id = #{record.eId,jdbcType=BIGINT},
+      content_type = #{record.contentType,jdbcType=VARCHAR},
+      standard_type = #{record.standardType,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -207,6 +233,12 @@
     <set>
       <if test="eId != null">
         e_id = #{eId,jdbcType=BIGINT},
+      </if>
+      <if test="contentType != null">
+        content_type = #{contentType,jdbcType=VARCHAR},
+      </if>
+      <if test="standardType != null">
+        standard_type = #{standardType,jdbcType=VARCHAR},
       </if>
       <if test="content != null">
         content = #{content,jdbcType=LONGVARCHAR},
@@ -220,13 +252,17 @@
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.cc.lab_teach.domain.Homework">
     update homework
     set e_id = #{eId,jdbcType=BIGINT},
+      content_type = #{contentType,jdbcType=VARCHAR},
+      standard_type = #{standardType,jdbcType=VARCHAR},
       content = #{content,jdbcType=LONGVARCHAR},
       `standard` = #{standard,jdbcType=LONGVARCHAR}
     where h_id = #{hId,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.cc.lab_teach.domain.Homework">
     update homework
-    set e_id = #{eId,jdbcType=BIGINT}
+    set e_id = #{eId,jdbcType=BIGINT},
+      content_type = #{contentType,jdbcType=VARCHAR},
+      standard_type = #{standardType,jdbcType=VARCHAR}
     where h_id = #{hId,jdbcType=BIGINT}
   </update>
 </mapper>

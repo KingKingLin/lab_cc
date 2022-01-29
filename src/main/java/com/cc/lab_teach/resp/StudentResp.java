@@ -1,5 +1,7 @@
 package com.cc.lab_teach.resp;
 
+import javax.validation.constraints.Pattern;
+
 public class StudentResp {
     private String token; // token
 
@@ -7,6 +9,7 @@ public class StudentResp {
 
     private String name;
 
+    @Pattern(regexp = "^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,18}$", message = "【密码】至少包含 数字和英文，长度6-18")
     private String password;
 
     public String getPassword() {

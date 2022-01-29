@@ -5,6 +5,10 @@ public class Homework {
 
     private Long eId;
 
+    private String contentType;
+
+    private String standardType;
+
     private String content;
 
     private String standard;
@@ -23,6 +27,22 @@ public class Homework {
 
     public void seteId(Long eId) {
         this.eId = eId;
+    }
+
+    public String getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
+
+    public String getStandardType() {
+        return standardType;
+    }
+
+    public void setStandardType(String standardType) {
+        this.standardType = standardType;
     }
 
     public String getContent() {
@@ -49,6 +69,8 @@ public class Homework {
         sb.append("Hash = ").append(hashCode());
         sb.append(", hId=").append(hId);
         sb.append(", eId=").append(eId);
+        sb.append(", contentType=").append(contentType);
+        sb.append(", standardType=").append(standardType);
         sb.append(", content=").append(content);
         sb.append(", standard=").append(standard);
         sb.append("]");

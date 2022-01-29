@@ -76,7 +76,9 @@ create table `homework` (
     `h_id` bigint primary key auto_increment,
     `e_id` bigint, -- 对应的是哪一个实验
     `content` mediumtext, -- 富文本，存放题目的内容
+    `content_type` varchar(20),
     `standard` mediumtext, -- 标准答案
+    `standard_type` varchar(20),
     foreign key (`e_id`) references `experiment`(`e_id`)
 );
 

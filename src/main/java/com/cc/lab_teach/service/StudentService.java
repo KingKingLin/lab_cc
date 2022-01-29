@@ -1,6 +1,8 @@
 package com.cc.lab_teach.service;
 
+import com.cc.lab_teach.domain.Experiment;
 import com.cc.lab_teach.domain.Student;
+import com.cc.lab_teach.domain.Teacher;
 import com.cc.lab_teach.exception.BusinessException;
 import com.cc.lab_teach.exception.BusinessExceptionCode;
 import com.cc.lab_teach.mapper.MyMapper;
@@ -8,6 +10,7 @@ import com.cc.lab_teach.mapper.StudentMapper;
 import com.cc.lab_teach.req.AddStudentReq;
 import com.cc.lab_teach.req.PageReq;
 import com.cc.lab_teach.req.StudentReq;
+import com.cc.lab_teach.resp.ExperimentResp;
 import com.cc.lab_teach.resp.PageResp;
 import com.cc.lab_teach.resp.StudentPageResp;
 import com.cc.lab_teach.resp.StudentResp;
@@ -21,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -84,5 +89,29 @@ public class StudentService {
         results.setSize(pageInfo.getPages());
         results.setList(students);
         return results;
+    }
+
+    @Transactional
+    public void resetPassword(StudentResp student) {
+        Student t = studentMapper.selectByPrimaryKey(student.getId());
+        // 参数校验
+        if (!ObjectUtils.isEmpty(t)) {
+            if (t.getName().equals(student.getName())) { // 参数校验成功, 开始修改密码
+                Student copy = CopyUtil.copy(student, Student.class);
+                int i = studentMapper.updateByPrimaryKey(copy);
+                LOG.info("已修改 {} 例 ", i);
+                if (i == 1) {
+                    return;
+                }
+            }
+        }
+        // 该学生不存在
+        throw new BusinessException(BusinessExceptionCode.RESET_PASSWORD_ERROR);
+    }
+
+    public List<ExperimentResp> getAllExperiments(String id) {
+        List<Experiment> experiments = myMapper.getExperiments(id);
+        LOG.info("查询结果: {}", experiments.toString());
+        return CopyUtil.copyList(experiments, ExperimentResp.class);
     }
 }

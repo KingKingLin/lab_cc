@@ -3,16 +3,15 @@ package com.cc.lab_teach.controller;
 import com.cc.lab_teach.req.AddStudentReq;
 import com.cc.lab_teach.req.PageReq;
 import com.cc.lab_teach.req.StudentReq;
-import com.cc.lab_teach.resp.PageResp;
-import com.cc.lab_teach.resp.StudentPageResp;
-import com.cc.lab_teach.resp.CommonResp;
-import com.cc.lab_teach.resp.StudentResp;
+import com.cc.lab_teach.req.TeacherReq;
+import com.cc.lab_teach.resp.*;
 import com.cc.lab_teach.service.StudentService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -59,6 +58,27 @@ public class StudentController {
         PageResp<StudentPageResp> students = studentService.getStudentByPage(page, Integer.parseInt(c_id));
         CommonResp<PageResp<StudentPageResp>> resp = new CommonResp<>();
         resp.setContent(students);
+        resp.setMessage("查询成功");
+        return resp;
+    }
+
+    // @Valid 开启参数校验
+    @PostMapping("/reset-password")
+    public CommonResp<Object> resetPassword(@Valid StudentResp student) {
+        LOG.info("{} 请求修改密码", student);
+        studentService.resetPassword(student);
+        CommonResp<Object> result = new CommonResp<>();
+        result.setMessage("修改密码成功");
+        LOG.info("{} 修改密码成功", student);
+        return result;
+    }
+
+    @GetMapping("/all/experiments")
+    public CommonResp<List<ExperimentResp>> getAllExperiments(String id) {
+        LOG.info("学生 {} 想要查询与其有关的所有实验", id);
+        List<ExperimentResp> result = studentService.getAllExperiments(id);
+        CommonResp<List<ExperimentResp>> resp = new CommonResp<>();
+        resp.setContent(result);
         resp.setMessage("查询成功");
         return resp;
     }

@@ -46,8 +46,8 @@
         name: 'login',
         data() {
             return {
-                id: '20010609',
-                password: '000000',
+                id: '20010609', // '20201269',
+                password: '000000', // 'lxy827543964',
                 status: ['学生', '教师'],
                 selected: 0
             };

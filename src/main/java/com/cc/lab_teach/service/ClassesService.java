@@ -103,7 +103,7 @@ public class ClassesService {
 
         // 分页数据
         PageInfo<Classes> pageInfo = new PageInfo<>(list);
-        LOG.info("总页数: {}", pageInfo.getTotal());
+        LOG.info("总条目: {}", pageInfo.getTotal());
         LOG.info("总页数: {}", pageInfo.getPages()); // 总页数
 
         // 封装数据对象

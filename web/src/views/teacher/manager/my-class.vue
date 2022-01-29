@@ -5,14 +5,14 @@
             <div class="my-class-aside">
                 <button class="my-class-aside-button" @click="addNewClass">添加班级</button>
                 <div v-if="classes.length !== 0" class="my-class-aside-container">
-                    <div :class="['my-class-aside-item', i === activeIndex ? 'active' : '']" v-for="(item, i) in classes" :key="i" @click="getStudents(i, item.id)">
+                    <div :class="['my-class-aside-item', i === classesIndex ? 'active' : '']" v-for="(item, i) in classes" :key="i" @click="getStudents(i, item.id)">
                         {{item.name}}
                     </div>
                 </div>
                 <el-empty :image-size="100" description="暂无任何班级信息" v-else></el-empty>
             </div>
             <div class="my-class-main">
-                <div v-if="activeIndex !== -1">
+                <div v-if="classesIndex !== -1">
                     <div class="my-class-main-head">
                         <el-popconfirm
                                 confirm-button-text='确定'
@@ -41,24 +41,26 @@
                             </template>
                         </el-upload>
                     </div>
-                    <div class="my-class-student-data-container" v-if="students.length !== 0">
-                        <div class="my-class-main-student-table">
-                            <el-table
-                                    :data="students"
-                                    border
-                                    style="width: 100%;"
-                                    height="434">
-                                <el-table-column
-                                        prop="id"
-                                        label="学号"
-                                        width="180">
-                                </el-table-column>
-                                <el-table-column
-                                        prop="name"
-                                        label="姓名"
-                                        width="180">
-                                </el-table-column>
-                            </el-table>
+                    <div v-if="students.length !== 0" style="display: flex; flex-direction: column; align-items: center">
+                        <div style="margin-bottom: 5px">
+                            <div class="my-class-main-student-table">
+                                <el-table
+                                        :data="students"
+                                        border
+                                        style="width: 100%;"
+                                        height="434">
+                                    <el-table-column
+                                            prop="id"
+                                            label="学号"
+                                            width="180">
+                                    </el-table-column>
+                                    <el-table-column
+                                            prop="name"
+                                            label="姓名"
+                                            width="180">
+                                    </el-table-column>
+                                </el-table>
+                            </div>
                         </div>
                         <el-pagination
                                 background
@@ -80,7 +82,7 @@
 <script>
     import myHead from '../../../components/teacher/my-head.vue'
     import axios from "axios";
-    import { mapState } from 'vuex';
+    import { mapState, mapMutations } from 'vuex';
     import xlsxTools from '../../../mixins/XLSXTools.js'
 
     export default {
@@ -90,13 +92,12 @@
             myHead
         },
         computed: {
-            ...mapState('m_user', ['user'])
+            ...mapState('m_user', ['user']),
+            ...mapState('m_myClass', ['classes', 'classesIndex'])
         },
         data() {
             return {
-                classes: [],
                 students: [],
-                activeIndex: -1,
                 page: {
                     pageNum: 1,
                     size: 8,
@@ -108,8 +109,11 @@
         mounted() {
             // 初始时便加载班级信息
             this.getClasses()
+
+            if (this.classesIndex !== -1) this.getStudents(this.classesIndex, this.classes[this.classesIndex].id)
         },
         methods: {
+            ...mapMutations('m_myClass', ['setClassesIndex', 'setClasses']),
             // 请求 classes[] 数据
             async getClasses() {
                 console.log("正在请求班级信息")
@@ -119,9 +123,9 @@
                     }
                 })
                 if (res.success) {
-                    this.classes = res.content
+                    this.setClasses(res.content)
                 } else {
-                    this.classes = []
+                    this.setClasses([])
                     console.error("请求班级信息失败")
                 }
             },
@@ -164,8 +168,7 @@
                 })
             },
             async getStudents(i, id) {
-                if (this.activeIndex === i) return
-                this.activeIndex = i
+                this.setClassesIndex(i)
                 // 查询学生信息
                 const {data: res} = await axios.get('/student/part/' + id, {
                     params: {
@@ -192,7 +195,7 @@
                 result = xlsxTools.method.changeCharacters(xlsxTools.data().characters, result)
                 console.log(result)
                 console.log("正在请求添加学生信息")
-                const id = this.classes[this.activeIndex].id
+                const id = this.classes[this.classesIndex].id
                 const loading = this.$loading({
                     lock: true,
                     text: '请稍等片刻, 正在全力为您导入学生信息中...',
@@ -209,14 +212,14 @@
                 }
                 loading.text = "正在为您全力加载数据..."
                 // 遍历完, 如果没有错误, 则请求所有的学生数据
-                await this.getStudents(this.activeIndex, id)
+                await this.getStudents(this.classesIndex, id)
                 loading.close(); // 不管创建与否都要关闭 loading 效果
             },
             async currentChange(e) {
                 // console.log("页码: " + e)
                 // console.log("currentChange")
                 this.page.pageNum = e
-                await this.getStudents(this.activeIndex, this.classes[this.activeIndex].id)
+                await this.getStudents(this.classesIndex, this.classes[this.classesIndex].id)
             }
         }
     }
@@ -231,12 +234,12 @@
 
     .my-class-aside {
         width: 222px;
-        height: 508px;
+        height: 549px;
         display: flex;
         flex-direction: column;
         align-items: center;
         /*border: 2px solid #efefef;*/
-        margin-right: 20px;
+        margin-right: 10px;
     }
 
     .my-class-aside-button {
@@ -315,11 +318,5 @@
 
     .el-upload__tip {
         transform: translateX(33.33%);
-    }
-
-    .my-class-student-data-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
     }
 </style>

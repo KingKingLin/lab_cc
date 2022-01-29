@@ -8,6 +8,7 @@ public enum BusinessExceptionCode {
     RESET_PASSWORD_ERROR("修改密码失败"),
     DANGEROUS_OPERATION("非法操作"),
     REPEAT_TO_ADD("重复添加"),
+    FileIsEmpty("上传空文件"),
     ;
 
     private String desc;
