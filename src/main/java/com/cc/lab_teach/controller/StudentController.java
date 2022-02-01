@@ -1,9 +1,6 @@
 package com.cc.lab_teach.controller;
 
-import com.cc.lab_teach.req.AddStudentReq;
-import com.cc.lab_teach.req.PageReq;
-import com.cc.lab_teach.req.StudentReq;
-import com.cc.lab_teach.req.TeacherReq;
+import com.cc.lab_teach.req.*;
 import com.cc.lab_teach.resp.*;
 import com.cc.lab_teach.service.StudentService;
 import org.slf4j.Logger;
@@ -80,6 +77,26 @@ public class StudentController {
         CommonResp<List<ExperimentResp>> resp = new CommonResp<>();
         resp.setContent(result);
         resp.setMessage("查询成功");
+        return resp;
+    }
+
+    @GetMapping("/homeworks")
+    public CommonResp<List<StudentHomeworkResp>> homeworks(long e_id, String s_id) {
+        LOG.info("学生 {} 想要查询实验 {} 的所有题目及其结果", s_id, e_id);
+        List<StudentHomeworkResp> result = studentService.homeworks(e_id, s_id);
+        final CommonResp<List<StudentHomeworkResp>> resp = new CommonResp<>();
+        resp.setMessage("查询成功");
+        resp.setContent(result);
+        return resp;
+    }
+
+    @PostMapping("/put-answer")
+    public CommonResp<Boolean> putAnswer(@RequestBody AnswerReq answer) {
+        LOG.info("学生 {} 提交答案", answer.getsId());
+        studentService.putAnswer(answer);
+        CommonResp<Boolean> resp = new CommonResp<>();
+        resp.setContent(true);
+        resp.setMessage("提交成功");
         return resp;
     }
 }

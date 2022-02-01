@@ -5,6 +5,7 @@ import Login from '../views/login.vue'
 import MyTeach from '../views/teacher/manager/my-teach.vue'
 import MyClass from '../views/teacher/manager/my-class.vue'
 import MyCorrect from '../views/teacher/manager/my-correct.vue'
+import MyReleaseAnswer from '../views/teacher/manager/my-release-answer.vue'
 import store from '../store/index.js'
 
 Vue.use(VueRouter)
@@ -46,6 +47,14 @@ const routes = [
     path: '/teacher/manager/correct',
     name: 'MyCorrect',
     component: MyCorrect,
+    meta: {
+      loginRequire: true // 需要登录校验
+    }
+  },
+  {
+    path: '/teacher/manager/release-answer',
+    name: 'MyReleaseAnswer',
+    component: MyReleaseAnswer,
     meta: {
       loginRequire: true // 需要登录校验
     }

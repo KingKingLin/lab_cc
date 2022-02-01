@@ -1,10 +1,12 @@
 package com.cc.lab_teach.service;
 
+import com.cc.lab_teach.domain.Answer;
 import com.cc.lab_teach.domain.Teacher;
 import com.cc.lab_teach.domain.TeacherExample;
 import com.cc.lab_teach.exception.BusinessException;
 import com.cc.lab_teach.exception.BusinessExceptionCode;
 import com.cc.lab_teach.mapper.TeacherMapper;
+import com.cc.lab_teach.req.AnswerReq;
 import com.cc.lab_teach.req.TeacherReq;
 import com.cc.lab_teach.resp.TeacherResp;
 import com.cc.lab_teach.util.CopyUtil;
@@ -22,6 +24,9 @@ public class TeacherService {
 
     @Resource
     private TeacherMapper teacherMapper;
+
+    @Resource
+    private AnswerService answerService;
 
     public TeacherResp login(TeacherReq teacher) {
         Teacher st = teacherMapper.selectByPrimaryKey(teacher.getId());// 根据教工号查询
@@ -59,5 +64,10 @@ public class TeacherService {
         Teacher teacher = teacherMapper.selectByPrimaryKey(id);
         // 如果 teacher 为空, 则代表者: 该 teacher 不存在, 返回 false
         return !ObjectUtils.isEmpty(teacher);
+    }
+
+    public void putCorrect(AnswerReq answer) {
+        if (ObjectUtils.isEmpty(answer.getCorrect())) throw new BusinessException(BusinessExceptionCode.CORRECT_IS_EMPTY);
+        answerService.putCorrect(CopyUtil.copy(answer, Answer.class));
     }
 }

@@ -3,6 +3,7 @@ package com.cc.lab_teach.mapper;
 import com.cc.lab_teach.domain.Classes;
 import com.cc.lab_teach.domain.Experiment;
 import com.cc.lab_teach.domain.Student;
+import com.cc.lab_teach.resp.StudentHomeworkResp;
 
 import java.util.List;
 
@@ -20,4 +21,6 @@ public interface MyMapper {
     int getTotal(long e_id);
 
     List<Experiment> getExperiments(String id);
+
+    List<StudentHomeworkResp> getStudentHomework(long e_id, String s_id);
 }

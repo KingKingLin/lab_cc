@@ -1,14 +1,14 @@
 <template>
     <el-container>
         <el-header>
-            <img src="../../assets/csuft.jpg" alt="图片失联中..." class="logo"/>
-            <el-menu :default-active="navigateTo" class="el-menu-demo" mode="horizontal" router @select="handleSelect">
+            <img src="../assets/csuft.jpg" alt="图片失联中..." class="logo"/>
+            <el-menu :default-active="navigateTo" class="el-menu-demo" mode="horizontal" router @select="handleSelect" v-if="type === 1">
                 <el-menu-item index="/">首页</el-menu-item>
                 <el-menu-item index="/teacher/manager/teach">教学管理</el-menu-item>
                 <el-menu-item index="/teacher/manager/class">班级管理</el-menu-item>
             </el-menu>
             <div class="el-breadcrumb">
-                <span>欢迎 {{user.name}} 老师</span>
+                <span>欢迎 {{user.name}} {{type === 0 ? '同学' : '老师'}}</span>
                 <el-divider direction="vertical"></el-divider>
                 <el-button type="text" @click="resetPassword" style="color: black;">修改密码</el-button>
                 <el-divider direction="vertical"></el-divider>
@@ -21,7 +21,7 @@
 
 <script>
     import { mapState, mapMutations } from 'vuex'
-    import myResetpassword from '../../components/my-resetpassword.vue'
+    import myResetpassword from '../components/my-resetpassword.vue'
     import axios from "axios";
 
     export default {
@@ -30,7 +30,7 @@
             myResetpassword
         },
         computed: {
-            ...mapState('m_user', ['user']),
+            ...mapState('m_user', ['user', 'type']),
             ...mapState('m_teacher', ['navigateTo'])
         },
         methods: {

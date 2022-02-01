@@ -23,8 +23,7 @@ public class HomeworkService {
         Homework homework = new Homework();
         homework.seteId(e_id);
         homework.setContentType(type);
-        if (type.equals("html")) homework.setContent(content);
-        else homework.setContent(type+ "/" + content);
+        homework.setContent(content);
         homeworkMapper.insert(homework);
     }
 }

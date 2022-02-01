@@ -1,5 +1,6 @@
 package com.cc.lab_teach.controller;
 
+import com.cc.lab_teach.req.AnswerReq;
 import com.cc.lab_teach.req.TeacherReq;
 import com.cc.lab_teach.resp.CommonResp;
 import com.cc.lab_teach.resp.TeacherResp;
@@ -7,6 +8,7 @@ import com.cc.lab_teach.service.TeacherService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -41,5 +43,15 @@ public class TeacherController {
         result.setMessage("修改密码成功");
         LOG.info("{} 修改密码成功", teacher);
         return result;
+    }
+
+    @PostMapping("/put-correct")
+    public CommonResp<Boolean> putCorrect(@RequestBody AnswerReq answer) {
+        LOG.info("教师正在为学生 {} 评阅", answer.getsId());
+        teacherService.putCorrect(answer);
+        CommonResp<Boolean> resp = new CommonResp<>();
+        resp.setContent(true);
+        resp.setMessage("评阅成功");
+        return resp;
     }
 }

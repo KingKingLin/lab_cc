@@ -1,6 +1,5 @@
 <template>
     <div>
-        <my-head></my-head>
         <div class="el-container my-class-container">
             <div class="my-class-aside">
                 <button class="my-class-aside-button" @click="addNewClass">添加班级</button>
@@ -80,7 +79,6 @@
 </template>
 
 <script>
-    import myHead from '../../../components/teacher/my-head.vue'
     import axios from "axios";
     import { mapState, mapMutations } from 'vuex';
     import xlsxTools from '../../../mixins/XLSXTools.js'
@@ -88,9 +86,6 @@
     export default {
         name: 'my-class',
         mixins: [xlsxTools],
-        components: {
-            myHead
-        },
         computed: {
             ...mapState('m_user', ['user']),
             ...mapState('m_myClass', ['classes', 'classesIndex'])

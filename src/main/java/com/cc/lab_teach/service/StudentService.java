@@ -1,5 +1,6 @@
 package com.cc.lab_teach.service;
 
+import com.cc.lab_teach.domain.Answer;
 import com.cc.lab_teach.domain.Experiment;
 import com.cc.lab_teach.domain.Student;
 import com.cc.lab_teach.domain.Teacher;
@@ -8,12 +9,10 @@ import com.cc.lab_teach.exception.BusinessExceptionCode;
 import com.cc.lab_teach.mapper.MyMapper;
 import com.cc.lab_teach.mapper.StudentMapper;
 import com.cc.lab_teach.req.AddStudentReq;
+import com.cc.lab_teach.req.AnswerReq;
 import com.cc.lab_teach.req.PageReq;
 import com.cc.lab_teach.req.StudentReq;
-import com.cc.lab_teach.resp.ExperimentResp;
-import com.cc.lab_teach.resp.PageResp;
-import com.cc.lab_teach.resp.StudentPageResp;
-import com.cc.lab_teach.resp.StudentResp;
+import com.cc.lab_teach.resp.*;
 import com.cc.lab_teach.util.CopyUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -41,6 +40,9 @@ public class StudentService {
 
     @Resource
     private CSService csService;
+
+    @Resource
+    private AnswerService answerService;
 
     public StudentResp login(StudentReq student) {
         Student st = studentMapper.selectByPrimaryKey(student.getId());// 根据学号查询
@@ -113,5 +115,15 @@ public class StudentService {
         List<Experiment> experiments = myMapper.getExperiments(id);
         LOG.info("查询结果: {}", experiments.toString());
         return CopyUtil.copyList(experiments, ExperimentResp.class);
+    }
+
+    public List<StudentHomeworkResp> homeworks(long e_id, String s_id) {
+        LOG.info("开始查询");
+        return myMapper.getStudentHomework(e_id, s_id);
+    }
+
+    public void putAnswer(AnswerReq answer) {
+        Answer copy = CopyUtil.copy(answer, Answer.class);
+        answerService.putAnswer(copy);
     }
 }

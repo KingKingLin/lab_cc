@@ -1,17 +1,19 @@
 <template>
     <div>
-        教师首页
+        发布答案的页面
     </div>
 </template>
 
 <script>
     export default {
-        name: 'my-teacher',
+        name: 'my-release-answer',
         data() {
             return {};
         },
-        setup() {
+        mounted() {
 
         }
     }
 </script>
+
+<style></style>

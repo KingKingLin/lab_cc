@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpSession;
 import java.io.*;
 import java.util.HashMap;
 import java.util.UUID;
@@ -80,6 +78,10 @@ public class HomeworkController {
             String htmlContent = OfficeConvertUtil.docxToHtml(file);
             homeworkService.insertHomework(e_id, "html", htmlContent);
             LOG.info("处理 .doc 文件 完成");
+        } else if (file.getOriginalFilename().endsWith(".txt")) { // 处理 txt 文件
+            LOG.info("开始处理 .txt 文件");
+            handleTxt(e_id, file);
+            LOG.info("处理 .txt 文件 完成");
         } else {
             handleImageAndVideo(e_id, file);
         }
@@ -87,6 +89,17 @@ public class HomeworkController {
         resp.setMessage("上传成功");
         resp.setContent(true);
         return resp;
+    }
+
+    private void handleTxt(long e_id, MultipartFile file) throws IOException {
+        Reader reader = new InputStreamReader(file.getInputStream());
+        StringBuilder stringBuilder = new StringBuilder();
+        char[] buffer = new char[1024];
+        int i = 0;
+        while ((i = reader.read(buffer)) != -1) {
+            stringBuilder.append(new String(buffer, 0, i));
+        }
+        homeworkService.insertHomework(e_id, "txt", stringBuilder.toString());
     }
 
     private void handleImageAndVideo(long e_id, MultipartFile file) throws IOException {
@@ -109,6 +122,6 @@ public class HomeworkController {
         String name = UUID.randomUUID().toString().replaceAll("-", "") + file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
         file.transferTo(new File(newFile, name));
 
-        homeworkService.insertHomework(e_id, type, name);
+        homeworkService.insertHomework(e_id, type, type + "/" + name);
     }
 }

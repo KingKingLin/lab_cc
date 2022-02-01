@@ -9,6 +9,8 @@ public enum BusinessExceptionCode {
     DANGEROUS_OPERATION("非法操作"),
     REPEAT_TO_ADD("重复添加"),
     FileIsEmpty("上传空文件"),
+    STUDENT_HAS_NOT_SUBMIT("学生并未提交回答，无法评阅"),
+    CORRECT_IS_EMPTY("评阅为空"),
     ;
 
     private String desc;

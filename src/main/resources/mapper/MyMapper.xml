@@ -46,16 +46,39 @@
         select count(0) `total` from `homework` where `e_id` = #{e_id}
     </select>
 
-    <resultMap id="BaseResultMap" type="com.cc.lab_teach.domain.Experiment">
+    <resultMap id="ExperimentResultMap" type="com.cc.lab_teach.domain.Experiment">
         <id column="e_id" jdbcType="BIGINT" property="eId" />
         <result column="c_id" jdbcType="INTEGER" property="cId" />
         <result column="title" jdbcType="VARCHAR" property="title" />
         <result column="deadline" jdbcType="TIMESTAMP" property="deadline" />
     </resultMap>
 
-    <select id="getExperiments" resultMap="BaseResultMap">
+    <select id="getExperiments" resultMap="ExperimentResultMap">
         select `e_id`, `title`, `deadline`
         from `experiment`
         where `c_id` = (select `c_id` from `c_s` where `s_id` = #{id})
+    </select>
+
+<!--    `t1`.`h_id` `h_id`, `content`, `content_type`, `standard`, `standard_type`, `a_id`, `correct`, `result`, `redo`-->
+    <resultMap id="StudentHomeworkResultMap" type="com.cc.lab_teach.resp.StudentHomeworkResp">
+        <result column="h_id" jdbcType="BIGINT" property="hId" />
+        <result column="a_id" jdbcType="BIGINT" property="aId" />
+        <result column="content_type" jdbcType="VARCHAR" property="contentType" />
+        <result column="standard_type" jdbcType="VARCHAR" property="standardType" />
+        <result column="redo" jdbcType="BIT" property="redo" />
+    </resultMap>
+    <resultMap extends="StudentHomeworkResultMap" id="StudentHomeworkResultMapWithBLOBs" type="com.cc.lab_teach.resp.StudentHomeworkResp">
+        <result column="content" jdbcType="LONGVARCHAR" property="content" />
+        <result column="standard" jdbcType="LONGVARCHAR" property="standard" />
+        <result column="correct" jdbcType="LONGVARCHAR" property="correct" />
+        <result column="result" jdbcType="LONGVARCHAR" property="result" />
+    </resultMap>
+
+    <select id="getStudentHomework" resultMap="StudentHomeworkResultMap">
+        -- 拿到该学生所有的题目和题解 -> 根据 e_id 和 s_id
+        select `t1`.`h_id` `h_id`, `content`, `content_type`, `standard`, `standard_type`, `a_id`, `correct`, `result`, `redo`
+        from (select * from `homework` where `e_id` = #{e_id}) `t1`
+                 left join (select * from `answer` where `s_id` = #{s_id}) `t2`
+                           on `t1`.`h_id` = `t2`.`h_id`
     </select>
 </mapper>

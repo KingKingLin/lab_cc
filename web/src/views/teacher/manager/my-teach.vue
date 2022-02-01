@@ -1,6 +1,5 @@
 <template>
     <div>
-        <my-head></my-head>
         <div class="my-teach-container">
             <div class="my-teach-container-head">
                 <el-button :disabled="JSON.stringify(show) === '{}'" @click="setDeadline" style="transform: translateX(63%);">新建实验</el-button>
@@ -19,7 +18,7 @@
                     <el-dropdown-menu slot="dropdown">
                         <el-dropdown-item command="pre" :disabled="page.pageNum === 1">上一页</el-dropdown-item>
                         <el-dropdown-item v-for="(item, i) in classes" :key="i" :command="item.id+','+i" :disabled="item.id === show.id">{{item.name}}</el-dropdown-item>
-                        <el-dropdown-item command="next" :disabled="page.pageNum >= page.pages">下一页</el-dropdown-item>
+                        <el-dropdown-item command="next" :disabled="page.pageNum >= page.class_pages">下一页</el-dropdown-item>
                     </el-dropdown-menu>
                 </el-dropdown>
             </div>
@@ -42,22 +41,22 @@
                             <el-table-column
                                     prop="id"
                                     label="学号"
-                                    width="180">
+                                    width="170">
                             </el-table-column>
                             <el-table-column
                                     prop="name"
                                     label="姓名"
-                                    width="180">
+                                    width="170">
                             </el-table-column>
                             <el-table-column
                                     prop="results"
                                     label="实验完成情况"
-                                    width="180">
+                                    width="170">
                             </el-table-column>
                             <el-table-column
                                     prop="corrects"
                                     label="评阅情况"
-                                    width="180">
+                                    width="170">
                             </el-table-column>
                             <el-table-column label="操作">
                                 <template slot-scope="scope">
@@ -71,7 +70,7 @@
                     <el-pagination
                             background
                             layout="prev, pager, next"
-                            :total="page.total"
+                            :total="page.student_total"
                             :page-size="page.size"
                             :pager-count="page.count"
                             @current-change="currentChange">
@@ -81,16 +80,16 @@
                     <el-upload
                             class="upload-demo"
                             action
-                            accept=".doc, .docx, .jpg, .png, .mp4"
+                            accept=".doc, .docx, .jpg, .png, .mp4, .txt"
                             :show-file-list="false"
                             :http-request="httpRequest"
                     >
                         <el-button>上传题目</el-button>
-                        <span style="font-size: 11px">
-                            doc/docx/jpg/png/mp4 files
-                        </span>
+<!--                        <span style="font-size: 5px;">-->
+<!--                            doc/docx/jpg/png/mp4/txt files-->
+<!--                        </span>-->
                     </el-upload>
-                    <button>发布答案</button>
+                    <router-link to="/teacher/manager/release-answer"><el-button>发布答案</el-button></router-link>
                 </div>
             </div>
         </div>
@@ -119,15 +118,11 @@
 </template>
 
 <script>
-    import myHead from '../../../components/teacher/my-head.vue'
     import { mapState, mapMutations } from 'vuex'
     import axios from "axios";
 
     export default {
         name: 'my-teach',
-        components: {
-            myHead
-        },
         computed: {
             ...mapState('m_user', ['user']),
             ...mapState('m_myTeach', ['show', 'experiment', 'experimentIndex'])
@@ -139,8 +134,10 @@
                 page: {
                     pageNum: 1,
                     size: 8,
-                    pages: Number, // 总页数, 从后端获取
-                    total: Number, // 总条目数，从后端获取
+                    class_pages: Number, // 总页数, 从后端获取
+                    class_total: Number, // 总条目数，从后端获取
+                    student_pages: Number, // 总页数, 从后端获取
+                    student_total: Number, // 总条目数，从后端获取
                 },
                 dialogVisible: false, // 用来展示 【创建实验】 选择截止日期
                 deadline: null, // 截止时间 Date()
@@ -197,8 +194,8 @@
                 if (res.success) {
                     // this.classes = [...this.classes, ...res.content.list]
                     this.classes = res.content.list
-                    this.page.total = res.content.total
-                    this.page.pages = res.content.size
+                    this.page.class_total = res.content.total
+                    this.page.class_pages = res.content.size
                 } else {
                     this.classes = []
                     console.error("请求班级信息失败")
@@ -301,14 +298,14 @@
                             item.corrects = "未发布题目"
                             item.results = "未发布题目"
                         } else {
-                            item.corrects = (item.corrects / item.total * 100) + " %"
-                            item.results = (item.results / item.total * 100) + " %"
+                            item.corrects = (item.corrects / item.total * 100).toFixed(2) + " %"
+                            item.results = (item.results / item.total * 100).toFixed(2) + " %"
                         }
                         return item
                     })
 
-                    this.page.pages = res.content.size
-                    this.page.total = res.content.total
+                    this.page.student_pages = res.content.size
+                    this.page.student_total = res.content.total
                 }
                 console.log(res)
             },
