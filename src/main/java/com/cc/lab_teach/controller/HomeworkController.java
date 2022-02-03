@@ -63,7 +63,7 @@ public class HomeworkController {
      */
     @PostMapping("/upload")
     public CommonResp<Boolean> upload(long e_id, MultipartFile file) throws Exception {
-        if (file.isEmpty()) throw new BusinessException(BusinessExceptionCode.FileIsEmpty);
+        if (file.isEmpty()) throw new BusinessException(BusinessExceptionCode.FILE_IS_EMPTY);
 
         LOG.info("e_id: " + e_id);
         LOG.info("file: " + file.getOriginalFilename());
@@ -103,7 +103,7 @@ public class HomeworkController {
     }
 
     private void handleImageAndVideo(long e_id, MultipartFile file) throws IOException {
-        if (file.isEmpty()) throw new BusinessException(BusinessExceptionCode.FileIsEmpty);
+        if (file.isEmpty()) throw new BusinessException(BusinessExceptionCode.FILE_IS_EMPTY);
         // 获取文件名
         String realPath = null;
         String type = null;

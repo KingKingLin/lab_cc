@@ -57,7 +57,7 @@ public class StudentService {
                 throw new BusinessException(BusinessExceptionCode.LOGIN_STUDENT_ERROR);
             }
         }
-        throw new BusinessException(BusinessExceptionCode.Not_EXITS);
+        throw new BusinessException(BusinessExceptionCode.NOT_EXITS);
     }
 
     @Transactional // 开启事务

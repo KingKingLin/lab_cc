@@ -8,11 +8,10 @@
             <div v-if="item.contentType === 'image'" class="my-homework-item-common">
                 <img :src="item.content"/>
             </div>
-            <div v-else-if="item.contentType === 'video'">
-                <video width="100%" height="240" controls>
-                    <source :src="item.content"
-                            type="video/mp4">
-                </video>
+            <div v-else-if="item.contentType === 'video'" class="my-homework-item-common">
+                <div style="width: 80%;">
+                    <vue-core-video-player :src="item.content"></vue-core-video-player>
+                </div>
             </div>
             <div v-else-if="item.contentType === 'html'" class="my-homework-item-common">
                 <p v-html="item.content"></p>
@@ -22,8 +21,13 @@
             </div>
             <!-- 答案区域 -->
             <div style="margin-bottom: 6px;">
-                <div class="my-homework-item-title">
-                    回答
+                <div class="my-homework-item-title goto-correct">
+                    <div>
+                        回答
+                    </div>
+                    <div v-if="type === 1"> <!-- 教师才显示 -->
+                        <a href="cfree://" style="color: red;">去评阅</a>
+                    </div>
                 </div>
                 <el-input
                         type="textarea"
@@ -81,6 +85,10 @@
 </script>
 
 <style>
+    .my-homework-container {
+        width: 100%;
+    }
+
     .my-homework-item {
         margin-bottom: 20px;
         /*border: 1px solid rgb(212, 212, 213);*/
@@ -93,6 +101,11 @@
         background-color: rgb(244, 243, 245);
         padding: 8px 18px 8px;
         border: 1px solid rgb(212, 212, 213);
+    }
+
+    .goto-correct {
+        display: flex;
+        justify-content: space-between;
     }
 
     .red {
@@ -109,8 +122,11 @@
 
     .my-homework-item-common {
         border: 1px solid rgb(212, 212, 213);
-        text-align: center;
+        /*text-align: center;*/
         padding: 10px 20px;
         margin-bottom: 6px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 </style>
