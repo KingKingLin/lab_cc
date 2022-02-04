@@ -19,7 +19,7 @@ import javax.servlet.MultipartConfigElement;
 @ComponentScan("com.cc.lab_teach")
 @MapperScan("com.cc.lab_teach.mapper")
 @EnableScheduling
-@EnableAsync
+//@EnableAsync
 public class LabTeachApplication {
     private static final Logger LOG = LoggerFactory.getLogger(LabTeachApplication.class);
 

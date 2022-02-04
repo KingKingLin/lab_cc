@@ -2,7 +2,6 @@ package com.cc.lab_teach.websocket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -16,9 +15,6 @@ import java.util.HashMap;
 @ServerEndpoint("/ws/{token}")
 public class WebSocketServer {
     private static final Logger LOG = LoggerFactory.getLogger(WebSocketServer.class);
-
-    @Resource
-    private RedisTemplate redisTemplate;
 
     /**
      * 每个客户端一个token
@@ -36,8 +32,6 @@ public class WebSocketServer {
     public void onOpen(Session session, @PathParam("token") String token) {
         map.put(token, session);
         this.token = token;
-
-
         LOG.info("有新连接：token：{}，session id：{}，当前连接数：{}", token, session.getId(), map.size());
     }
 

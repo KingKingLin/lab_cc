@@ -88,11 +88,12 @@
         select 0, curdate()
         from dual where not exists(
                 select 1 from `snapshot` where `date` = curdate()
-            )
-        -- 23:59:59 时更新快照表
+            );
+
+        -- 04:00:00 时更新快照表
         update `snapshot`
         set `views` = #{views}
-        where `date` = curdate()
+        where `date` = date_sub(curdate(), interval 1 day)
     </update>
 
 

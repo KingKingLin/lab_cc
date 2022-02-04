@@ -6,8 +6,8 @@ from dual where not exists(
     )
 
 update `snapshot`
-set `views` = 21
-where `date` = curdate()
+set `views` = 56
+where `date` = date_sub(curdate(), interval 1 day)
 
 -- 查询30天的快照信息
 select
@@ -15,5 +15,5 @@ select
 from
     `snapshot`
 where
-    `date` between date_sub(curdate(), interval 30 day ) and date_sub(curdate(), interval 1 day)
+    `date` between date_sub(curdate(), interval 30 day) and date_sub(curdate(), interval 1 day)
 order by `date` asc;

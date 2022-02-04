@@ -15,6 +15,7 @@ import com.cc.lab_teach.req.PageReq;
 import com.cc.lab_teach.req.StudentReq;
 import com.cc.lab_teach.resp.*;
 import com.cc.lab_teach.util.CopyUtil;
+import com.cc.lab_teach.util.RedisUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
@@ -48,7 +49,7 @@ public class StudentService {
     private AnswerService answerService;
 
     @Resource
-    private RedisTemplate redisTemplate;
+    private RedisUtil redisUtil;
 
     public StudentResp login(StudentReq student) {
         Student st = studentMapper.selectByPrimaryKey(student.getId());// 根据学号查询
@@ -57,7 +58,8 @@ public class StudentService {
                 StudentResp resp = CopyUtil.copy(st, StudentResp.class);
                 String token = UUID.randomUUID().toString();
                 resp.setToken(token);
-                redisTemplate.opsForValue().set(token, JSONObject.toJSONString(resp), 3600 * 24, TimeUnit.SECONDS); // 操作什么？即，往 redis 里 set 一个值
+                redisUtil.setToken(token, JSONObject.toJSONString(resp));
+                redisUtil.viewspp();
                 LOG.info("返回: {}", resp);
                 return resp;
             } else {
