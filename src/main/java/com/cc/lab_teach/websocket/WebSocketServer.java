@@ -36,6 +36,8 @@ public class WebSocketServer {
     public void onOpen(Session session, @PathParam("token") String token) {
         map.put(token, session);
         this.token = token;
+
+
         LOG.info("有新连接：token：{}，session id：{}，当前连接数：{}", token, session.getId(), map.size());
     }
 

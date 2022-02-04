@@ -99,11 +99,11 @@
     <select id="get30DayStatistic" resultType="com.cc.lab_teach.domain.Snapshot">
         -- 查询30天的快照信息
         select
-            `views`, `date`
+            `id`, `views`, `date`
         from
             `snapshot`
         where
-            `date` between date_sub(curdate(), interval 30 day ) and date_sub(curdate(), interval 1 day)
+            `date` between date_sub(curdate(), interval 30 day) and date_sub(curdate(), interval 1 day)
         order by `date` asc;
     </select>
 </mapper>

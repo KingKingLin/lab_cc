@@ -2,7 +2,6 @@ package com.cc.lab_teach.job;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +12,7 @@ public class SnapshotJob {
     /**
      * corn 每天的 23:59:59 更新快照表
      */
-    @Scheduled(cron = "59 59 23 * * ? *")
+    @Scheduled(cron = "59 59 23 * * ? ")
     public void cron() {
         LOG.info("23:59:59 更新快照表开始");
         long start = System.currentTimeMillis();
