@@ -9,6 +9,8 @@ import org.springframework.boot.web.servlet.MultipartConfigFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.env.Environment;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.util.unit.DataSize;
 
 import javax.servlet.MultipartConfigElement;
@@ -16,6 +18,8 @@ import javax.servlet.MultipartConfigElement;
 @SpringBootApplication
 @ComponentScan("com.cc.lab_teach")
 @MapperScan("com.cc.lab_teach.mapper")
+@EnableScheduling
+@EnableAsync
 public class LabTeachApplication {
     private static final Logger LOG = LoggerFactory.getLogger(LabTeachApplication.class);
 

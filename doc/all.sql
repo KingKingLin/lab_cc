@@ -95,3 +95,12 @@ create table `answer` (
     foreign key (`s_id`) references `student`(`id`),
     foreign key (`h_id`) references `homework`(`h_id`)
 );
+
+-- 快照表
+drop table if exists `snapshot`;
+
+create table `snapshot` (
+    `id` bigint primary key auto_increment,
+    `views` int default 0,
+    `date` date unique
+);

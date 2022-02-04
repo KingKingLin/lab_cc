@@ -5,6 +5,7 @@ import com.cc.lab_teach.req.TeacherReq;
 import com.cc.lab_teach.resp.CommonResp;
 import com.cc.lab_teach.resp.TeacherResp;
 import com.cc.lab_teach.service.TeacherService;
+import com.cc.lab_teach.websocket.WebSocketServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,9 @@ public class TeacherController {
 
     @Resource
     private TeacherService teacherService;
+
+    @Resource
+    private WebSocketServer webSocketServer;
 
     @PostMapping("/login")
     public CommonResp<TeacherResp> login(TeacherReq teacher) {
@@ -49,6 +53,16 @@ public class TeacherController {
         CommonResp<Boolean> resp = new CommonResp<>();
         resp.setContent(true);
         resp.setMessage("评阅成功");
+        return resp;
+    }
+
+    @GetMapping("/online-students")
+    public CommonResp<Integer> onlineStudents(String id) {
+        WebSocketServer webSocketServer = new WebSocketServer();
+        int n = webSocketServer.getOnlineNumbers() - 1;
+        LOG.info("教师 {} 请求获取在线的学生人数 共 {} 人", id, n);
+        CommonResp<Integer> resp = new CommonResp<>();
+        resp.setContent(n);
         return resp;
     }
 }

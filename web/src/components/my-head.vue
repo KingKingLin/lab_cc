@@ -22,7 +22,7 @@
 <script>
     import { mapState, mapMutations } from 'vuex'
     import myResetpassword from '../components/my-resetpassword.vue'
-    import axios from "axios";
+    import axios from "axios"
 
     export default {
         name: 'my-head',
@@ -30,8 +30,21 @@
             myResetpassword
         },
         computed: {
-            ...mapState('m_user', ['user', 'type']),
+            ...mapState('m_user', ['user', 'type', 'token']),
             ...mapState('m_teacher', ['navigateTo'])
+        },
+        mounted() {
+            // WebSocket
+            if ('WebSocket' in window) {
+                // 链接地址: ws//127.0.0.1:8880/ws/xxx
+                const websocket = new WebSocket(process.env.VUE_APP_WS_SERVER + '/ws/' + this.token);
+                this.initWebSocket(websocket);
+
+                // 关闭
+                // websocket.close()
+            } else {
+                alert('当前浏览器 不支持');
+            }
         },
         methods: {
             ...mapMutations('m_teacher', ['setActiveIndex']),
@@ -58,6 +71,25 @@
                     this.$message.success(res.message)
                 } else {
                     this.$message.error(res.message)
+                }
+            },
+            initWebSocket(websocket) {
+                // 连接成功
+                websocket.onopen = () => {
+                    console.log('WebSocket连接成功, 状态码: ', websocket.readyState);
+                }
+                // 收到消息的回调
+                websocket.onmessage = (event) => {
+                    console.log('WebSocket收到消息: ', event.data);
+                    // 收到消息
+                }
+                // 连接失败
+                websocket.onerror = () => {
+                    console.log('WebSocket连接错误, 状态码: ', websocket.readyState);
+                }
+                // 连接关闭
+                websocket.onclose = () => {
+                    console.log('WebSocket连接关闭, 状态码: ', websocket.readyState);
                 }
             }
         }
