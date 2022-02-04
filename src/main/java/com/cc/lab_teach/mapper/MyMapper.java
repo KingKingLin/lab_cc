@@ -2,6 +2,7 @@ package com.cc.lab_teach.mapper;
 
 import com.cc.lab_teach.domain.Classes;
 import com.cc.lab_teach.domain.Experiment;
+import com.cc.lab_teach.domain.Snapshot;
 import com.cc.lab_teach.domain.Student;
 import com.cc.lab_teach.resp.StudentHomeworkResp;
 
@@ -23,4 +24,8 @@ public interface MyMapper {
     List<Experiment> getExperiments(String id);
 
     List<StudentHomeworkResp> getStudentHomework(long e_id, String s_id);
+
+    void insertSnapshot(long views);
+
+    List<Snapshot> get30DayStatistic();
 }
