@@ -58,6 +58,13 @@
                                             label="姓名"
                                             width="180">
                                     </el-table-column>
+                                    <el-table-column label="重置密码">
+                                        <template slot-scope="scope">
+                                            <el-button
+                                                    size="mini"
+                                                    @click="handle(scope.$index, scope.row)">重置</el-button>
+                                        </template>
+                                    </el-table-column>
                                 </el-table>
                             </div>
                         </div>
@@ -215,7 +222,19 @@
                 // console.log("currentChange")
                 this.page.pageNum = e
                 await this.getStudents(this.classesIndex, this.classes[this.classesIndex].id)
-            }
+            },
+            // 重置密码
+            async handle(index, row) {
+                const id = row.id
+                const {data: res} = await axios.get("/student/force/reset", {
+                    params: {
+                        id
+                    }
+                })
+                if (res.success) { // 重置密码成功
+                    this.$message.success(res.message)
+                } else this.$message.error(res.message)
+            },
         }
     }
 </script>

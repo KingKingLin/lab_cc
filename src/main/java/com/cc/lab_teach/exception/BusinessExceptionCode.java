@@ -13,6 +13,7 @@ public enum BusinessExceptionCode {
     NOT_MP4_FILE("文件格式不对，暂只支持 mp4 格式的视频"),
     STUDENT_HAS_NOT_SUBMIT("学生并未提交回答，无法评阅"),
     CORRECT_IS_EMPTY("评阅为空"),
+    HOMEWORK_IS_EMPTY("该题目不存在"),
     ;
 
     private String desc;

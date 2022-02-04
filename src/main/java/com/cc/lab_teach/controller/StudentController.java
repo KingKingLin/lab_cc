@@ -99,4 +99,16 @@ public class StudentController {
         resp.setMessage("提交成功");
         return resp;
     }
+
+    @GetMapping("/force/reset")
+    public CommonResp<Boolean> forceReset(String id) {
+        LOG.info("老师强制重置 学生{} 的密码", id);
+
+        studentService.forceReset(id);
+
+        CommonResp<Boolean> resp = new CommonResp<>();
+        resp.setContent(true);
+        resp.setMessage("重置密码成功");
+        return resp;
+    }
 }

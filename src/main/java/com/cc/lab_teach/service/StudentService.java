@@ -1,5 +1,6 @@
 package com.cc.lab_teach.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.cc.lab_teach.domain.Answer;
 import com.cc.lab_teach.domain.Experiment;
 import com.cc.lab_teach.domain.Student;
@@ -18,6 +19,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
@@ -27,6 +29,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class StudentService {
@@ -44,6 +47,9 @@ public class StudentService {
     @Resource
     private AnswerService answerService;
 
+    @Resource
+    private RedisTemplate redisTemplate;
+
     public StudentResp login(StudentReq student) {
         Student st = studentMapper.selectByPrimaryKey(student.getId());// 根据学号查询
         if(!ObjectUtils.isEmpty(st)) { // 查询到该学生
@@ -51,6 +57,7 @@ public class StudentService {
                 StudentResp resp = CopyUtil.copy(st, StudentResp.class);
                 String token = UUID.randomUUID().toString();
                 resp.setToken(token);
+                redisTemplate.opsForValue().set(token, JSONObject.toJSONString(resp), 3600 * 24, TimeUnit.SECONDS); // 操作什么？即，往 redis 里 set 一个值
                 LOG.info("返回: {}", resp);
                 return resp;
             } else {
@@ -125,5 +132,13 @@ public class StudentService {
     public void putAnswer(AnswerReq answer) {
         Answer copy = CopyUtil.copy(answer, Answer.class);
         answerService.putAnswer(copy);
+    }
+
+    @Transactional
+    public void forceReset(String id) {
+        Student student = studentMapper.selectByPrimaryKey(id);
+        if (ObjectUtils.isEmpty(student)) throw new BusinessException(BusinessExceptionCode.NOT_EXITS);
+        student.setPassword("000000");
+        studentMapper.updateByPrimaryKey(student);
     }
 }

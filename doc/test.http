@@ -47,3 +47,7 @@ GET http://localhost:8888/student/homeworks?e_id=1&s_id=20201269
 Accept: application/json
 
 ###
+GET http://localhost:8888/teacher/get-homework?e_id=1
+Accept: application/json
+
+###

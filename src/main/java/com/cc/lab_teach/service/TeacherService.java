@@ -1,5 +1,6 @@
 package com.cc.lab_teach.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.cc.lab_teach.domain.Answer;
 import com.cc.lab_teach.domain.Teacher;
 import com.cc.lab_teach.domain.TeacherExample;
@@ -12,11 +13,13 @@ import com.cc.lab_teach.resp.TeacherResp;
 import com.cc.lab_teach.util.CopyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import javax.annotation.Resource;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class TeacherService {
@@ -28,6 +31,9 @@ public class TeacherService {
     @Resource
     private AnswerService answerService;
 
+    @Resource
+    private RedisTemplate redisTemplate;
+
     public TeacherResp login(TeacherReq teacher) {
         Teacher st = teacherMapper.selectByPrimaryKey(teacher.getId());// 根据教工号查询
         if(!ObjectUtils.isEmpty(st)) { // 查询到该教师
@@ -35,6 +41,7 @@ public class TeacherService {
                 TeacherResp resp = CopyUtil.copy(st, TeacherResp.class);
                 String token = UUID.randomUUID().toString();
                 resp.setToken(token);
+                redisTemplate.opsForValue().set(token, JSONObject.toJSONString(resp), 3600 * 24, TimeUnit.SECONDS); // 操作什么？即，往 redis 里 set 一个值
                 LOG.info("返回: {}", resp);
                 return resp;
             }

@@ -89,7 +89,7 @@
 <!--                            doc/docx/jpg/png/mp4/txt files-->
 <!--                        </span>-->
                     </el-upload>
-                    <router-link to="/teacher/manager/release-answer"><el-button>发布答案</el-button></router-link>
+                    <router-link :to="'/teacher/manager/release-answer?e_id='+experiment[experimentIndex].eId"><el-button>发布答案</el-button></router-link>
                 </div>
             </div>
         </div>
