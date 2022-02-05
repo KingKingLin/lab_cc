@@ -48,7 +48,7 @@
         },
         methods: {
             ...mapMutations('m_teacher', ['setActiveIndex']),
-            ...mapMutations('m_user', ['setUser']),
+            ...mapMutations('m_user', ['setUser', 'type']),
             handleSelect(key, keyPath) {
                 this.setActiveIndex(key)
             },
@@ -63,11 +63,19 @@
                 // console.log("user = " + JSON.stringify(this.user))
                 // console.log("navigateTo = " + this.navigateTo)
             },
-            async sendMessage(teacher) {
-                const {data: res} = await axios.post('/teacher/reset-password?id='+teacher.id+'&name='+teacher.name+'&password='+teacher.password)
+            async sendMessage(user) {
+                if (this.type === 0) { // 学生
+                    const {data: res} = await axios.post('/student/reset-password?id='+user.id+'&name='+user.name+'&password='+user.password)
+                    this.tips(res, user)
+                } else if (this.type === 1) { // 教师
+                    const {data: res} = await axios.post('/teacher/reset-password?id='+user.id+'&name='+user.name+'&password='+user.password)
+                    this.tips(res, user)
+                }
+            },
+            tips(res, user) {
                 if (res.success) {
                     // 密码修改成功
-                    this.setUser(teacher)
+                    this.setUser(user)
                     this.$message.success(res.message)
                 } else {
                     this.$message.error(res.message)
