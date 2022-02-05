@@ -14,8 +14,13 @@
                 <img :src="item.content"/>
             </div>
             <div v-else-if="item.contentType === 'video'" class="my-homework-item-common">
-                <div style="width: 80%;">
-                    <vue-core-video-player :src="item.content"></vue-core-video-player>
+                <div>
+<!--                    <vue-core-video-player :src="item.content"></vue-core-video-player>-->
+                    <video height="260" controls>
+                        <source :src="item.content" type="video/mp4">
+                        <source :src="item.content" type="video/ogg">
+                        您的浏览器不支持 video 标签。
+                    </video>
                 </div>
             </div>
             <div v-else-if="item.contentType === 'html'" class="my-homework-item-common">
@@ -67,15 +72,20 @@
         <el-drawer
                 :title="'题目 ' + index + ' 的标准答案'"
                 :visible.sync="drawer"
-                size="50%">
+                size="40%">
             <!-- 标准答案内容 -->
             <div v-if="item.standard" class="my-homework-standard">
                 <div v-if="item.standardType === 'image'">
-                    <img :src="item.standard" width="100%"/>
+                    <img :src="item.standard" style="width: 400px;"/>
                 </div>
                 <div v-else-if="item.standardType === 'video'">
                     <div style="width: 80%;">
-                        <vue-core-video-player :src="item.content"></vue-core-video-player>
+<!--                        <vue-core-video-player :src="item.standard"></vue-core-video-player>-->
+                        <video height="240" controls>
+                            <source :src="item.standard" type="video/mp4">
+                            <source :src="item.standard" type="video/ogg">
+                            您的浏览器不支持 video 标签。
+                        </video>
                     </div>
                 </div>
                 <div v-else-if="item.standardType === 'html'">
@@ -183,6 +193,8 @@
     }
 
     .my-homework-standard {
-        padding: 10px;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
     }
 </style>

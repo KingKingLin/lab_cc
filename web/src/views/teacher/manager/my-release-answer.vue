@@ -13,7 +13,12 @@
                     </div>
                     <div v-else-if="item.contentType === 'video'">
                         <div class="my-release-answer-video">
-                            <vue-core-video-player :src="item.content"></vue-core-video-player>
+<!--                            <vue-core-video-player :src="item.content"></vue-core-video-player>-->
+                            <video height="260" controls>
+                                <source :src="item.content" type="video/mp4">
+                                <source :src="item.content" type="video/ogg">
+                                您的浏览器不支持 video 标签。
+                            </video>
                         </div>
                     </div>
                     <div v-else-if="item.contentType === 'html'">
@@ -30,7 +35,12 @@
                     </div>
                     <div v-else-if="item.standardType === 'video'">
                         <div class="my-release-answer-video">
-                            <vue-core-video-player :src="item.content"></vue-core-video-player>
+<!--                            <vue-core-video-player :src="item.standard"></vue-core-video-player>-->
+                            <video height="260" controls>
+                                <source :src="item.standard" type="video/mp4">
+                                <source :src="item.standard" type="video/ogg">
+                                您的浏览器不支持 video 标签。
+                            </video>
                         </div>
                     </div>
                     <div v-else-if="item.standardType === 'html'">

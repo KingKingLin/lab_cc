@@ -92,6 +92,7 @@
                         }
                         return item
                     })
+                    if (entity.deadline === null) return
                     // 格式化截止时间
                     const tz = 'Asia/Shanghai'  //时区
                     this.deadline = moment.utc(entity.deadline).tz(tz).format('YYYY-MM-DD HH:mm:ss')

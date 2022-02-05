@@ -10,6 +10,7 @@
 <script>
     import myHomework from '../../../components/my-homework.vue'
     import axios from "axios"
+    import moment from 'moment-timezone'
 
     export default {
         name: 'my-correct',
@@ -77,7 +78,9 @@
             async getDeadline() {
                 const {data: res} = await axios.get('/teacher/get/experiment/'+this.e_id)
                 if (res.success) {
-                    this.deadline = res.content.deadline
+                    if (res.content.deadline === null) return
+                    const tz = 'Asia/Shanghai'  //时区
+                    this.deadline = moment.utc(res.content.deadline).tz(tz).format('YYYY-MM-DD HH:mm:ss')
                 }
             }
         }
