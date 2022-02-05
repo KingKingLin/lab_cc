@@ -155,9 +155,11 @@
 
     <build>
         <plugins>
+            <!--用来打包的插件-->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>2.5.6</version>
             </plugin>
 
             <!--mybatis generator插件-->

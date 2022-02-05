@@ -6,8 +6,6 @@ import com.cc.lab_teach.resp.CommonResp;
 import com.cc.lab_teach.resp.HomeworkResp;
 import com.cc.lab_teach.service.HomeworkService;
 import com.cc.lab_teach.util.OfficeConvertUtil;
-import com.mysql.cj.log.Log;
-import com.sun.java.accessibility.util.java.awt.ListTranslator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ResourceUtils;

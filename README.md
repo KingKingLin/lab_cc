@@ -1314,3 +1314,630 @@
         ```
 
       - 后端添加对应接口，根据 <font color='crimson'>教工号</font> 以及 <font color='crimson'>分页条件</font> 查询部分班级信息，最后选择对应的班级信息，则可以开始上课（ 发布实验题目<<font color='crimson'>以 word 的形式 或者 粘贴题目，也就是富文本形式</font>>，和 批阅题目等功能 ）
+
+# 不想写了，摆烂了
+
+​	在本次项目中，新的收获：
+
+1. 后端
+
+   - <font color='crimson'>学会了处理 doc、docx、图片等文件的上传</font>
+
+     - image：将文件存储到本地，最后以访问路径的形式存入数据库。前端通过网络获取本地数据。
+     - video：同理
+     - doc、docx：则是将其装换为对应的 html 字符串，存入数据库中，最后直接返回给前端
+     - txt：处理起来最容易，通过流读取文件中的内容，存入数据库即可
+
+     ```java
+     package com.cc.lab_teach.controller;
+     
+     import com.cc.lab_teach.exception.BusinessException;
+     import com.cc.lab_teach.exception.BusinessExceptionCode;
+     import com.cc.lab_teach.resp.CommonResp;
+     import com.cc.lab_teach.resp.HomeworkResp;
+     import com.cc.lab_teach.service.HomeworkService;
+     import com.cc.lab_teach.util.OfficeConvertUtil;
+     import org.slf4j.Logger;
+     import org.slf4j.LoggerFactory;
+     import org.springframework.util.ResourceUtils;
+     import org.springframework.web.bind.annotation.GetMapping;
+     import org.springframework.web.bind.annotation.PostMapping;
+     import org.springframework.web.bind.annotation.RequestMapping;
+     import org.springframework.web.bind.annotation.RestController;
+     import org.springframework.web.multipart.MultipartFile;
+     
+     import javax.annotation.Resource;
+     import java.io.*;
+     import java.util.HashMap;
+     import java.util.List;
+     import java.util.UUID;
+     
+     /**
+      * 处理发布题目的类
+      */
+     @RestController
+     @RequestMapping("/teacher")
+     public class HomeworkController {
+         private final static Logger LOG = LoggerFactory.getLogger(HomeworkController.class);
+     
+         private final static HashMap<String, String> hashMap = new HashMap<>();
+     
+         @Resource
+         private HomeworkService homeworkService;
+     
+         static {
+             try {
+                 // 获得 classpath 的绝对路径
+                 hashMap.put("image", ResourceUtils.getURL("classpath:").getPath() + "static/image");
+                 hashMap.put("video", ResourceUtils.getURL("classpath:").getPath() + "static/video");
+             } catch (FileNotFoundException e) {
+                 LOG.error(String.valueOf(e));
+             }
+         }
+     
+         /**
+          * homework 可能是图片，可能是文本(word，由前端解析过)，还可能是视频
+          * 1. 如果是 图片，则保存到本地，记录其存储路径，最后将路径存入数据库
+          * 2. 如果是 文本，则直接存入数据库
+          * 3. 如果是 视频，则和图片一样的处理
+          * @return
+          */
+         @PostMapping("/release")
+         public CommonResp<Boolean> release(long h_id, MultipartFile file) throws Exception {
+             if (file.isEmpty()) throw new BusinessException(BusinessExceptionCode.FILE_IS_EMPTY);
+     
+             LOG.info("开始上传答案");
+             LOG.info("h_id: " + h_id);
+             LOG.info("file: " + file.getOriginalFilename());
+             LOG.info("contentType" + file.getContentType());
+             if (file.getOriginalFilename().endsWith(".doc")) { // 处理 doc 文件
+                 LOG.info("开始处理 .doc 文件");
+                 String htmlContent = OfficeConvertUtil.docToHtml(file);
+                 LOG.info("处理 .doc 文件 完成");
+                 homeworkService.uploadHomework(h_id, "html", htmlContent);
+             } else if (file.getOriginalFilename().endsWith(".docx")) { // 处理 docx 文件
+                 LOG.info("开始处理 .doc 文件");
+                 String htmlContent = OfficeConvertUtil.docxToHtml(file);
+                 homeworkService.uploadHomework(h_id, "html", htmlContent);
+                 LOG.info("处理 .doc 文件 完成");
+             } else if (file.getOriginalFilename().endsWith(".txt")) { // 处理 txt 文件
+                 LOG.info("开始处理 .txt 文件");
+                 String txtContent = handleTxt(file);
+                 homeworkService.uploadHomework(h_id, "txt", txtContent);
+                 LOG.info("处理 .txt 文件 完成");
+             } else {
+                 LOG.info("开始处理 媒体 文件");
+                 String[] handle = handleImageAndVideo(file);
+                 homeworkService.uploadHomework(h_id, handle[0], handle[0] + "/" + handle[1]);
+                 LOG.info("处理 媒体 文件完成");
+             }
+     
+             CommonResp<Boolean> resp = new CommonResp<>();
+             resp.setMessage("上传成功");
+             resp.setContent(true);
+             return resp;
+         }
+     
+         @GetMapping("/get-homeworks")
+         public CommonResp<List<HomeworkResp>> getHomework(long e_id) {
+             LOG.info("开始查询 {} 的所有题目", e_id);
+             List<HomeworkResp> result = homeworkService.getHomework(e_id);
+             CommonResp<List<HomeworkResp>> resp = new CommonResp<>();
+             resp.setContent(result);
+             resp.setMessage("查询成功");
+             return resp;
+         }
+     
+         /**
+          * homework 可能是图片，可能是文本(word，由前端解析过)，还可能是视频
+          * 1. 如果是 图片，则保存到本地，记录其存储路径，最后将路径存入数据库
+          * 2. 如果是 文本，则直接存入数据库
+          * 3. 如果是 视频，则和图片一样的处理
+          * @return
+          */
+         @PostMapping("/upload")
+         public CommonResp<Boolean> upload(long e_id, MultipartFile file) throws Exception {
+             if (file.isEmpty()) throw new BusinessException(BusinessExceptionCode.FILE_IS_EMPTY);
+     
+             LOG.info("开始发布题目");
+             LOG.info("e_id: " + e_id);
+             LOG.info("file: " + file.getOriginalFilename());
+             LOG.info("contentType" + file.getContentType());
+             if (file.getOriginalFilename().endsWith(".doc")) { // 处理 doc 文件
+                 LOG.info("开始处理 .doc 文件");
+                 String htmlContent = OfficeConvertUtil.docToHtml(file);
+                 LOG.info("处理 .doc 文件 完成");
+                 homeworkService.insertHomework(e_id, "html", htmlContent);
+             } else if (file.getOriginalFilename().endsWith(".docx")) { // 处理 docx 文件
+                 LOG.info("开始处理 .doc 文件");
+                 String htmlContent = OfficeConvertUtil.docxToHtml(file);
+                 homeworkService.insertHomework(e_id, "html", htmlContent);
+                 LOG.info("处理 .doc 文件 完成");
+             } else if (file.getOriginalFilename().endsWith(".txt")) { // 处理 txt 文件
+                 LOG.info("开始处理 .txt 文件");
+                 String txtContent = handleTxt(file);
+                 homeworkService.insertHomework(e_id, "txt", txtContent);
+                 LOG.info("处理 .txt 文件 完成");
+             } else {
+                 LOG.info("开始处理 媒体 文件");
+                 String[] handle = handleImageAndVideo(file);
+                 homeworkService.insertHomework(e_id, handle[0], handle[0] + "/" + handle[1]);
+                 LOG.info("处理 媒体 文件完成");
+             }
+             CommonResp<Boolean> resp = new CommonResp<>();
+             resp.setMessage("上传成功");
+             resp.setContent(true);
+             return resp;
+         }
+     
+         private String handleTxt(MultipartFile file) throws IOException {
+             Reader reader = new InputStreamReader(file.getInputStream());
+             StringBuilder stringBuilder = new StringBuilder();
+             char[] buffer = new char[1024];
+             int i = 0;
+             while ((i = reader.read(buffer)) != -1) {
+                 stringBuilder.append(new String(buffer, 0, i));
+             }
+             return stringBuilder.toString();
+         }
+     
+         private String[] handleImageAndVideo(MultipartFile file) throws IOException {
+             if (file.isEmpty()) throw new BusinessException(BusinessExceptionCode.FILE_IS_EMPTY);
+             // 获取文件名
+             String realPath = null;
+             String type = null;
+             String contentType = file.getContentType();
+             if (contentType.contains("image")) { // 如果是图片
+                 realPath = hashMap.get("image");
+                 type = "image";
+             } else if (contentType.contains("video")) { // 如果是视频
+                 realPath = hashMap.get("video");
+                 type = "video";
+             }
+             File newFile = new File(realPath);
+             // 如果文件夹不存在、则新建
+             if (!newFile.exists()) newFile.mkdirs();
+             // 上传，不使用用户上传的名字，因为容易重复
+             String name = UUID.randomUUID().toString().replaceAll("-", "") + file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
+             file.transferTo(new File(newFile, name));
+     
+             return new String[]{type, name};
+         }
+     }
+     ```
+
+     ```java
+     package com.cc.lab_teach.util;
+     
+     import org.apache.poi.hwpf.HWPFDocument;
+     import org.apache.poi.hwpf.converter.WordToHtmlConverter;
+     import org.apache.poi.xwpf.converter.core.BasicURIResolver;
+     import org.apache.poi.xwpf.converter.core.FileImageExtractor;
+     import org.apache.poi.xwpf.converter.xhtml.XHTMLConverter;
+     import org.apache.poi.xwpf.converter.xhtml.XHTMLOptions;
+     import org.apache.poi.xwpf.usermodel.XWPFDocument;
+     import org.slf4j.Logger;
+     import org.slf4j.LoggerFactory;
+     import org.springframework.util.ResourceUtils;
+     import org.springframework.web.multipart.MultipartFile;
+     
+     import javax.xml.parsers.DocumentBuilderFactory;
+     import javax.xml.transform.OutputKeys;
+     import javax.xml.transform.Transformer;
+     import javax.xml.transform.TransformerFactory;
+     import javax.xml.transform.dom.DOMSource;
+     import javax.xml.transform.stream.StreamResult;
+     import java.io.File;
+     import java.io.FileOutputStream;
+     import java.io.StringWriter;
+     import java.io.StringWriter;
+     import java.util.UUID;
+     
+     public class OfficeConvertUtil {
+         private static final Logger LOG = LoggerFactory.getLogger(OfficeConvertUtil.class);
+     
+         // doc转换为html
+         public static String docToHtml(MultipartFile file) throws Exception {
+             LOG.info("正在处理：将 .doc 文件装换成 .html 格式");
+             // 图片的存储路径
+             String image_path = ResourceUtils.getURL("classpath:").getPath() + "static/image/doc/";
+     
+             HWPFDocument wordDocument = new HWPFDocument(file.getInputStream());
+             org.w3c.dom.Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+             WordToHtmlConverter wordToHtmlConverter = new WordToHtmlConverter(document);
+             //保存图片，并返回图片的相对路径
+             wordToHtmlConverter.setPicturesManager((content, pictureType, name, width, height) -> {
+                 String suffix = name.substring(name.lastIndexOf("."));
+                 String filename = UUID.randomUUID().toString().replaceAll("-", "");
+                 try (FileOutputStream out = new FileOutputStream(image_path + filename + suffix)) {
+                     out.write(content);
+                 } catch (Exception e) {
+                     e.printStackTrace();
+                 }
+                 LOG.info("处理图片文件，储存路径为: image/doc/{}", filename + suffix);
+                 return "image/doc/" + filename + suffix;
+             });
+             // 处理 word 文件
+             wordToHtmlConverter.processDocument(wordDocument);
+             org.w3c.dom.Document htmlDocument = wordToHtmlConverter.getDocument();
+             DOMSource domSource = new DOMSource(htmlDocument);
+             // 以 字符串流 的形式，暂存与 内存 中
+             StreamResult streamResult = new StreamResult(new StringWriter());
+             // 转换成 html 格式
+             TransformerFactory tf = TransformerFactory.newInstance();
+             Transformer serializer = tf.newTransformer();
+             serializer.setOutputProperty(OutputKeys.ENCODING, "utf-8");
+             serializer.setOutputProperty(OutputKeys.INDENT, "yes");
+             serializer.setOutputProperty(OutputKeys.METHOD, "html");
+             serializer.transform(domSource, streamResult);
+     
+             return streamResult.getWriter().toString();
+         }
+     
+         // docx转换为html
+         public static String docxToHtml(MultipartFile file) throws Exception {
+             LOG.info("正在处理：将 .docx 文件装换成 .html 格式");
+             // 图片的存储路径
+             String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+             String image_path = ResourceUtils.getURL("classpath:").getPath() + "static/image/docx/" + uuid;
+     
+             StringWriter stringWriter = null;
+             String htmlContent = null;
+             try {
+                 XWPFDocument document = new XWPFDocument(file.getInputStream());
+                 XHTMLOptions options = XHTMLOptions.create();
+                 // 存放图片的文件夹
+                 options.setExtractor(new FileImageExtractor(new File(image_path)));
+                 // html中图片的路径
+                 options.URIResolver(new BasicURIResolver("image/docx/" + uuid));
+                 stringWriter = new StringWriter();
+                 XHTMLConverter xhtmlConverter = (XHTMLConverter) XHTMLConverter.getInstance();
+                 xhtmlConverter.convert(document, stringWriter, options);
+     
+                 htmlContent = stringWriter.toString();
+             } finally {
+                 if (stringWriter != null) {
+                     stringWriter.close();
+                 }
+             }
+             return htmlContent;
+         }
+     }
+     ```
+
+   - <font color='crimson'>通过 WebSocket 得到，目前在线人数</font>
+
+     ```java
+     package com.cc.lab_teach.config;
+     
+     import org.springframework.context.annotation.Bean;
+     import org.springframework.context.annotation.Configuration;
+     import org.springframework.web.socket.server.standard.ServerEndpointExporter;
+     
+     @Configuration
+     public class WebSocketConfig {
+         /**
+          * 声明我这个SpringBoot应用要暴露、使用websocket了
+          */
+         @Bean
+         public ServerEndpointExporter serverEndpointExporter() {
+             return new ServerEndpointExporter();
+         }
+     }
+     ```
+
+     ```java
+     package com.cc.lab_teach.websocket;
+     
+     import org.slf4j.Logger;
+     import org.slf4j.LoggerFactory;
+     import org.springframework.stereotype.Component;
+     
+     import javax.annotation.Resource;
+     import javax.websocket.*;
+     import javax.websocket.server.PathParam;
+     import javax.websocket.server.ServerEndpoint;
+     import java.io.IOException;
+     import java.util.HashMap;
+     
+     @Component
+     @ServerEndpoint("/ws/{token}")
+     public class WebSocketServer {
+         private static final Logger LOG = LoggerFactory.getLogger(WebSocketServer.class);
+     
+         /**
+          * 每个客户端一个token
+          */
+         private String token = "";
+     
+         private static HashMap<String, Session> map = new HashMap<>(); // 放置所有的连接
+     
+         /**
+          * 连接成功
+          *
+          * 推送信息需要session，所有连接后需要保存session
+          */
+         @OnOpen
+         public void onOpen(Session session, @PathParam("token") String token) {
+             map.put(token, session);
+             this.token = token;
+             LOG.info("有新连接：token：{}，session id：{}，当前连接数：{}", token, session.getId(), map.size());
+         }
+     
+         /**
+          * 连接关闭
+          */
+         @OnClose
+         public void onClose(Session session) {
+             map.remove(this.token);
+             LOG.info("连接关闭，token：{}，session id：{}！当前连接数：{}", this.token, session.getId(), map.size());
+         }
+     
+         /**
+          * 收到消息，这个是指我们服务端收到消息
+          */
+         @OnMessage
+         public void onMessage(String message, Session session) {
+             LOG.info("收到消息：{}，内容：{}", token, message);
+         }
+     
+         /**
+          * 连接错误
+          */
+         @OnError
+         public void onError(Session session, Throwable error) {
+             LOG.error("发生错误", error);
+         }
+     
+         /**
+          * 群发消息，给客户端通知其实就是调用这个方法，遍历每一个session
+          */
+         public void sendInfo(String message) {
+             for (String token : map.keySet()) {
+                 Session session = map.get(token);
+                 try {
+                     session.getBasicRemote().sendText(message); // getBasicRemote()得到远程的IP地址，然后发送一个文本
+                 } catch (IOException e) {
+                     LOG.error("推送消息失败：{}，内容：{}", token, message);
+                 }
+                 LOG.info("推送消息：{}，内容：{}", token, message);
+             }
+         }
+     
+         /**
+          * 得到在线人数
+          */
+         public int getOnlineNumbers() {
+             return map.size();
+         }
+     }
+     ```
+
+   - 使用定时任务，每天凌晨4点更新昨天的访问人数
+
+     ```java
+     package com.cc.lab_teach.job;
+     
+     import com.cc.lab_teach.mapper.MyMapper;
+     import org.slf4j.Logger;
+     import org.slf4j.LoggerFactory;
+     import org.springframework.data.redis.core.RedisTemplate;
+     import org.springframework.scheduling.annotation.Scheduled;
+     import org.springframework.stereotype.Component;
+     import org.springframework.transaction.annotation.Transactional;
+     
+     import javax.annotation.Resource;
+     
+     @Component
+     public class SnapshotJob {
+         private static final Logger LOG = LoggerFactory.getLogger(SnapshotJob.class);
+     
+         @Resource
+         private RedisTemplate redisTemplate;
+     
+         @Resource
+         private MyMapper myMapper;
+     
+         /**
+          * corn 每天的 04:00:00 更新快照表
+          */
+         @Scheduled(cron = "0 0 4 * * ?")
+         @Transactional
+         public void cron() {
+             LOG.info("04:00:00 更新快照表开始（昨天的访问量）");
+             long start = System.currentTimeMillis();
+     
+             Long views = (Long) redisTemplate.opsForValue().get("views");
+             if (views == null) views = 0l;
+             // 更新数据
+             myMapper.insertSnapshot(views);
+             // 重置 views
+             redisTemplate.opsForValue().set("views", 0l);
+             LOG.info("更新快照表数据结束，耗时：{} 毫秒", System.currentTimeMillis() - start);
+         }
+     
+        /* @Scheduled(cron = "0 0 0 * * ?")
+         public void test() {
+             LOG.info("00:00:00 重置访问量");
+         }*/
+     }
+     ```
+
+   - 为了防止，黑客入侵，添加 token 检测机制，集成 redis
+
+     - 使用拦截器，对请求进行拦截，并检测 token
+
+     ```java
+     package com.cc.lab_teach.interceptor;
+     
+     import org.slf4j.Logger;
+     import org.slf4j.LoggerFactory;
+     import org.springframework.data.redis.core.RedisTemplate;
+     import org.springframework.http.HttpStatus;
+     import org.springframework.stereotype.Component;
+     import org.springframework.web.servlet.HandlerInterceptor;
+     import org.springframework.web.servlet.ModelAndView;
+     
+     import javax.annotation.Resource;
+     import javax.servlet.http.HttpServletRequest;
+     import javax.servlet.http.HttpServletResponse;
+     
+     /**
+      * 拦截器：Spring框架持有的，常用于登录校验，权限校验，请求日志打印
+      */
+     @Component
+     public class LogInterceptor implements HandlerInterceptor {
+     
+         private static final Logger LOG = LoggerFactory.getLogger(LogInterceptor.class);
+     
+         @Resource
+         private RedisTemplate redisTemplate;
+     
+         @Override
+         public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+             // 打印请求信息
+             LOG.info("----------------LogInterceptor 开始----------------");
+     
+             long startTime = System.currentTimeMillis();
+             request.setAttribute("requestStartTime", startTime);
+     
+             // OPTIONS请求不做校验,
+             // 前后端分离的架构, 前端会发一个OPTIONS请求先做预检, 对预检请求不做校验
+             if(request.getMethod().toUpperCase().equals("OPTIONS")){
+                 return true;
+             }
+     
+             String path = request.getRequestURL().toString();
+             LOG.info("接口登录拦截：，path：{}", path);
+     
+             //获取header的token参数
+             String token = request.getHeader("token");
+             LOG.info("登录校验开始，token：{}", token);
+             if (token == null || token.isEmpty()) {
+                 LOG.info( "token为空，请求被拦截" );
+                 response.setStatus(HttpStatus.UNAUTHORIZED.value()); // 401
+                 return false;
+             }
+             // redis 对 token 这个参数的要求是有要求的
+             Object object = redisTemplate.opsForValue().get(token);
+             if (object == null) {
+                 LOG.warn( "token无效，请求被拦截" );
+                 response.setStatus(HttpStatus.UNAUTHORIZED.value()); // 401
+                 return false;
+             } else {
+                 LOG.info("已登录：{}", object);
+                 return true;
+             }
+         }
+     
+         @Override
+         public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+             long startTime = (Long) request.getAttribute("requestStartTime");
+             LOG.info("----------LogInterceptor 结束 耗时: {} ms----------", System.currentTimeMillis() - startTime);
+         }
+     }
+     ```
+
+   - 前后端交互时，日期数据的传输，可能出现问题
+
+     - 使用  @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") 解决，但是<font color='crimson'>需要注意的是：前端必须以这种格式传递过来，才能正确接受。</font>
+
+     ```xml
+     <!-- 处理前后端日期格式问题 -->
+     <dependency>
+         <groupId>com.fasterxml.jackson.core</groupId>
+         <artifactId>jackson-core</artifactId>
+     </dependency>
+     
+     <dependency>
+         <groupId>com.fasterxml.jackson.core</groupId>
+         <artifactId>jackson-annotations</artifactId>
+     </dependency>
+     
+     <dependency>
+         <groupId>com.fasterxml.jackson.core</groupId>
+         <artifactId>jackson-databind</artifactId>
+     </dependency>
+     ```
+
+     ```java
+     @GetMapping("/add-experiment/{c_id}")
+     public CommonResp<Boolean> addExperiment(String title,
+                                              @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+                                              @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+                                              Date deadline,
+                                              @PathVariable String c_id)
+     ```
+
+   - <font color='crimson'>学会使用 SpringMVC 提供的 MultipartFile处理二进制文件</font>
+
+     ```
+     file.transferTo(new File(newFile, name)); // 转存文件
+     ```
+
+   - <font color='crimson'>使用 poi 和 jsoup 处理 word 文件，转存为 html</font>
+
+     ```xml
+     <!-- 处理 word -->
+     <dependency>
+         <groupId>org.apache.poi</groupId>
+         <artifactId>poi</artifactId>
+         <version>3.14</version>
+     </dependency>
+     
+     <dependency>
+         <groupId>org.apache.poi</groupId>
+         <artifactId>poi-scratchpad</artifactId>
+         <version>3.14</version>
+     </dependency>
+     
+     <dependency>
+         <groupId>org.apache.poi</groupId>
+         <artifactId>poi-ooxml</artifactId>
+         <version>3.14</version>
+     </dependency>
+     
+     <dependency>
+         <groupId>fr.opensagres.xdocreport</groupId>
+         <artifactId>xdocreport</artifactId>
+         <version>1.0.6</version>
+     </dependency>
+     
+     <dependency>
+         <groupId>org.apache.poi</groupId>
+         <artifactId>poi-ooxml-schemas</artifactId>
+         <version>3.14</version>
+     </dependency>
+     
+     <dependency>
+         <groupId>org.apache.poi</groupId>
+         <artifactId>ooxml-schemas</artifactId>
+         <version>1.3</version>
+     </dependency>
+     
+     <dependency>
+         <groupId>org.jsoup</groupId>
+         <artifactId>jsoup</artifactId>
+         <version>1.11.3</version>
+     </dependency>
+     ```
+
+2. 前端
+
+   - 总之学会了很多，如：自己设计滚动条，各种 UI 组件的使用等等
+
+   - 学会使用自定义协议，打开外联的PC应用（一定要运行进注册表文件）
+
+     ```reg
+     Windows Registry Editor Version 5.00
+     
+     [HKEY_CLASSES_ROOT\cfree]
+     "URL Protocol"=""
+     @=""
+     
+     [HKEY_CLASSES_ROOT\CFree.c\shell\open\command]
+     @="D:\\lab_cc\\C-Free 5\\CppIDE.exe \"%1\""
+     ```
+
+     
+
