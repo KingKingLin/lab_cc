@@ -156,6 +156,7 @@
                         })
                         loading.text = "正在为您全力加载数据..."
                         // 创建成功后, 重新请求列表 classes 列表数据
+                        this.students = []
                         await this.getClasses()
                     }
                     else {

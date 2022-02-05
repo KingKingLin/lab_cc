@@ -33,6 +33,10 @@ public class OfficeConvertUtil {
         // 图片的存储路径
         String image_path = ResourceUtils.getURL("classpath:").getPath() + "static/image/doc/";
 
+        File newFile = new File(image_path);
+        // 如果文件夹不存在、则新建
+        if (!newFile.exists()) newFile.mkdirs();
+
         HWPFDocument wordDocument = new HWPFDocument(file.getInputStream());
         org.w3c.dom.Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
         WordToHtmlConverter wordToHtmlConverter = new WordToHtmlConverter(document);
@@ -71,6 +75,10 @@ public class OfficeConvertUtil {
         // 图片的存储路径
         String uuid = UUID.randomUUID().toString().replaceAll("-", "");
         String image_path = ResourceUtils.getURL("classpath:").getPath() + "static/image/docx/" + uuid;
+
+        File newFile = new File(image_path);
+        // 如果文件夹不存在、则新建
+        if (!newFile.exists()) newFile.mkdirs();
 
         StringWriter stringWriter = null;
         String htmlContent = null;

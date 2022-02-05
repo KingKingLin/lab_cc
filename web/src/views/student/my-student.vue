@@ -172,6 +172,7 @@
     }
 
     #my-student-main {
+        width: 100%;
         overflow-y: scroll;
     }
 
