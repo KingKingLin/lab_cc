@@ -28,4 +28,7 @@ public interface MyMapper {
     void insertSnapshot(long views);
 
     List<Snapshot> get30DayStatistic();
+
+    // 删除与 c_id 班级信息相关的数据
+    void deleteClass(int c_id);
 }

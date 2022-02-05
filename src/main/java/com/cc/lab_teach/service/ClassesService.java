@@ -113,4 +113,8 @@ public class ClassesService {
         result.setSize(pageInfo.getPages());
         return result;
     }
+
+    public void delete(int c_id) {
+        myMapper.deleteClass(c_id);
+    }
 }

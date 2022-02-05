@@ -14,6 +14,7 @@ public enum BusinessExceptionCode {
     STUDENT_HAS_NOT_SUBMIT("学生并未提交回答，无法评阅"),
     CORRECT_IS_EMPTY("评阅为空"),
     HOMEWORK_IS_EMPTY("该题目不存在"),
+    RESULT_IS_EMPTY("答案不能为空"),
     ;
 
     private String desc;

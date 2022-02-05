@@ -21,6 +21,7 @@ public class AnswerService {
     private AnswerMapper answerMapper;
 
     public void putAnswer(Answer answer) {
+        if (ObjectUtils.isEmpty(answer.getResult()) || answer.getResult().equals("")) throw new BusinessException(BusinessExceptionCode.RESULT_IS_EMPTY);
         // 先开始查询该学生该题目是否提交过
         LOG.info("开始判断该学生 {} 是否提交过答案", answer.getsId());
         // and s_id = xx and h_id = xx 得到一条记录，如果为空则代表没有插入过，如果不为空则判断是否可以重做
@@ -38,6 +39,7 @@ public class AnswerService {
     }
 
     public void putCorrect(Answer answer) {
+        if (ObjectUtils.isEmpty(answer.getCorrect()) || answer.getCorrect().equals("")) throw new BusinessException(BusinessExceptionCode.CORRECT_IS_EMPTY);
         // 先开始查询该学生该题目是否提交过
         LOG.info("开始判断该学生 {} 是否提交过答案", answer.getsId());
         // and s_id = xx and h_id = xx 得到一条记录，如果为空则代表没有插入过，如果不为空则判断是否可以重做

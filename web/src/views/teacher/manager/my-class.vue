@@ -10,7 +10,7 @@
                 </div>
                 <el-empty :image-size="100" description="暂无任何班级信息" v-else></el-empty>
             </div>
-            <div class="my-class-main">
+            <div style="width: 100%;">
                 <div v-if="classesIndex !== -1">
                     <div class="my-class-main-head">
                         <el-popconfirm
@@ -32,7 +32,8 @@
                                 :show-file-list="false"
                                 :http-request="httpRequest"
                         >
-                            <button class="my-class-main-head-button">导入学生信息</button>
+<!--                            <button class="my-class-main-head-button">导入学生信息</button>-->
+                            <el-button size="medium" plain>导入学生信息</el-button>
                             <template #tip>
                                 <div class="el-upload__tip">
                                     xlsx/xls files
@@ -46,8 +47,7 @@
                                 <el-table
                                         :data="students"
                                         border
-                                        style="width: 100%;"
-                                        height="434">
+                                        height="474">
                                     <el-table-column
                                             prop="id"
                                             label="学号"
@@ -108,11 +108,11 @@
                 }
             };
         },
-        mounted() {
+        async mounted() {
             // 初始时便加载班级信息
-            this.getClasses()
+            await this.getClasses()
 
-            if (this.classesIndex !== -1) this.getStudents(this.classesIndex, this.classes[this.classesIndex].id)
+            if (this.classesIndex !== -1) await this.getStudents(this.classesIndex, this.classes[this.classesIndex].id)
         },
         methods: {
             ...mapMutations('m_myClass', ['setClassesIndex', 'setClasses']),
@@ -183,8 +183,32 @@
                     this.page.total = res.content.total
                 }
             },
-            dropClass() {
-                console.log("删除班级")
+            async dropClass() {
+                const loading = this.$loading({
+                    lock: true,
+                    text: '请稍等片刻, 正在全力为您删除改班级中...',
+                    spinner: 'el-icon-loading',
+                    background: 'rgba(0, 0, 0, 0.7)'
+                });
+                const {data: res} = await axios.delete('/teacher/delete/' + this.classes[this.classesIndex].id)
+                if (res.success) { // 创建成功
+                    this.$message({
+                        type: 'success',
+                        message: res.message
+                    })
+                    loading.text = "正在为您全力加载数据..."
+                    // 创建成功后, 重新请求列表 classes 列表数据
+                    await this.getClasses()
+                    this.students = []
+                    this.setClassesIndex(-1)
+                }
+                else {
+                    this.$message({
+                        type: 'error',
+                        message: res.message
+                    })
+                }
+                loading.close(); // 不管创建与否都要关闭 loading 效果
             },
             async httpRequest(e) {
                 // /student/addStudent/1?id=xxx&name=xxx
@@ -299,15 +323,6 @@
         text-overflow: ellipsis; /* 超过一行则显示... */
     }
 
-    /*.my-class-aside-item:hover {*/
-    /*    color: rgb(64, 158, 255);*/
-    /*    background-color: rgb(236, 245, 255);*/
-    /*}*/
-
-    .my-class-main {
-        width: 100%;
-    }
-
     .my-class-main-head {
         width: 100%;
         height: 45px;
@@ -317,20 +332,12 @@
         margin-bottom: 10px;
     }
 
-    .my-class-main-head-button {
-        width: 200px;
-        color: rgb(96, 98, 102);
-        background-color: white;
-        border-radius: 18px;
-        border: 1px solid #efefef;
-    }
-
-    .my-class-aside-button:hover, .my-class-main-head-button:hover, .active{
+    .my-class-aside-button:hover, .active{
         color: rgb(64, 158, 255);
         background-color: rgb(236, 245, 255);
     }
 
     .el-upload__tip {
-        transform: translateX(33.33%);
+        transform: translateX(22.22%);
     }
 </style>

@@ -2,8 +2,13 @@
     <div class="my-homework-container">
         <div v-for="(item, i) in homework" :key="i" class="my-homework-item">
             <!-- 题目区域 -->
-            <div class="my-homework-item-title">
-                题目 {{i + 1}}
+            <div class="my-homework-item-title goto-correct">
+                <div>
+                    题目 {{i + 1}}
+                </div>
+                <div v-if="deadline !== null" class="red">
+                    {{new Date() > new Date(deadline) ? '已截止' : deadline + ' 截止'}}
+                </div>
             </div>
             <div v-if="item.contentType === 'image'" class="my-homework-item-common">
                 <img :src="item.content"/>
@@ -52,7 +57,7 @@
                     </el-input>
                 </div>
             </div>
-            <div style="display: flex; justify-content: space-around;" v-if="(type === 0 && item.redo !== false) || type === 1">
+            <div style="display: flex; justify-content: space-around;" v-if="(type === 0 && item.redo !== false && deadline !== null && new Date() <= new Date(deadline)) || type === 1">
                 <!-- 提交按钮 -->
                 <el-button icon="el-icon-edit" round @click="submit(item)">{{type === 0 ? '提交答案' : '提交评语'}}</el-button>
             </div>
@@ -105,6 +110,10 @@
             homework: {
                 type: Array,
                 default: () => []
+            },
+            deadline: {
+                type: String,
+                default: () => null
             }
         },
         mounted() {
@@ -148,6 +157,7 @@
     .goto-correct {
         display: flex;
         justify-content: space-between;
+        align-items: center;
     }
 
     .red {

@@ -12,7 +12,7 @@
                         <img :src="item.content" width="100%"/>
                     </div>
                     <div v-else-if="item.contentType === 'video'">
-                        <div style="width: 80%;">
+                        <div class="my-release-answer-video">
                             <vue-core-video-player :src="item.content"></vue-core-video-player>
                         </div>
                     </div>
@@ -29,7 +29,7 @@
                         <img :src="item.standard" width="100%"/>
                     </div>
                     <div v-else-if="item.standardType === 'video'">
-                        <div style="width: 80%;">
+                        <div class="my-release-answer-video">
                             <vue-core-video-player :src="item.content"></vue-core-video-player>
                         </div>
                     </div>
@@ -167,5 +167,10 @@
 
     .my-margin {
         margin-right: 10px;
+    }
+
+    .my-release-answer-video {
+        display: block !important;
+        height: 300px;
     }
 </style>

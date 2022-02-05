@@ -77,4 +77,9 @@ public class ExperimentService {
         results.setSize(pageInfo.getPages());
         return results;
     }
+
+    public ExperimentResp getExperiment(Long e_id) {
+        Experiment experiment = experimentMapper.selectByPrimaryKey(e_id);
+        return CopyUtil.copy(experiment, ExperimentResp.class);
+    }
 }

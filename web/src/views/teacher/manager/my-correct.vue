@@ -1,7 +1,7 @@
 <template>
     <div style="margin-top: 20px; display: flex; justify-content: center; align-items: center;">
         <div class="my-correct-container">
-            <my-homework :homework="homework" @click="click"></my-homework>
+            <my-homework :homework="homework" :deadline="deadline" @click="click"></my-homework>
         </div>
     </div>
 
@@ -21,6 +21,7 @@
                 homework: [],
                 e_id: null,
                 s_id: null,
+                deadline: null
             }
         },
         async mounted() {
@@ -29,6 +30,7 @@
             this.e_id = this.$route.query.e_id
             this.s_id = this.$route.query.s_id
             await this.selectDetails()
+            await this.getDeadline()
         },
         methods: {
             async selectDetails() {
@@ -70,6 +72,12 @@
                     this.$message.success(res.message)
                 } else {
                     this.$message.error(res.message)
+                }
+            },
+            async getDeadline() {
+                const {data: res} = await axios.get('/teacher/get/experiment/'+this.e_id)
+                if (res.success) {
+                    this.deadline = res.content.deadline
                 }
             }
         }

@@ -107,4 +107,22 @@
             `date` between date_sub(curdate(), interval 30 day) and date_sub(curdate(), interval 1 day)
         order by `date` asc;
     </select>
+
+    <delete id="deleteClass">
+        delete from `answer`
+        where `h_id` = (select `h_id` from `homework` where `e_id` = (
+            select `e_id` from `experiment` where `c_id` = #{c_id}
+        ));
+
+        delete from `homework`
+        where `e_id` = (select `e_id` from `experiment` where `c_id` = #{c_id});
+
+        delete from `experiment` where `c_id` = #{c_id};
+
+        delete from `c_s` where `c_id` = #{c_id};
+
+        delete from `t_c` where `c_id` = #{c_id};
+
+        delete from `classes` where `id` = #{c_id};
+    </delete>
 </mapper>

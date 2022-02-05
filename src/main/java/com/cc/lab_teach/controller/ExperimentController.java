@@ -68,4 +68,14 @@ public class ExperimentController {
         resp.setMessage("查询成功");
         return resp;
     }
+
+    @GetMapping("/get/experiment/{e_id}")
+    public CommonResp<ExperimentResp> getExperiment(@PathVariable String e_id) {
+        LOG.info("根据 e_id: {} 查询具体的实验信息", e_id);
+        ExperimentResp result = experimentService.getExperiment(Long.parseLong(e_id));
+        CommonResp<ExperimentResp> resp = new CommonResp<>();
+        resp.setContent(result);
+        resp.setMessage("查询成功");
+        return resp;
+    }
 }

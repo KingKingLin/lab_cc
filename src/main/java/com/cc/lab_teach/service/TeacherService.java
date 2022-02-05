@@ -76,7 +76,7 @@ public class TeacherService {
     }
 
     public void putCorrect(AnswerReq answer) {
-        if (ObjectUtils.isEmpty(answer.getCorrect())) throw new BusinessException(BusinessExceptionCode.CORRECT_IS_EMPTY);
+//        if (ObjectUtils.isEmpty(answer.getCorrect())) throw new BusinessException(BusinessExceptionCode.CORRECT_IS_EMPTY);
         answerService.putCorrect(CopyUtil.copy(answer, Answer.class));
     }
 }

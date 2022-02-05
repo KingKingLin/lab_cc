@@ -7,9 +7,7 @@ import com.cc.lab_teach.resp.PageResp;
 import com.cc.lab_teach.service.ClassesService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -61,6 +59,15 @@ public class ClassesController {
         CommonResp<PageResp<ClassesResp>> resp = new CommonResp<>();
         resp.setContent(classes);
         resp.setMessage("查询班级数据成功");
+        return resp;
+    }
+
+    @DeleteMapping("/delete/{c_id}")
+    public CommonResp<Boolean> delete(@PathVariable int c_id) {
+        classesService.delete(c_id);
+        CommonResp<Boolean> resp = new CommonResp<>();
+        resp.setContent(true);
+        resp.setMessage("删除成功");
         return resp;
     }
 }

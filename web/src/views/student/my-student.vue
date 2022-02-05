@@ -9,7 +9,9 @@
                 </div>
                 <el-empty :image-size="100" description="暂无任何实验信息" v-else></el-empty>
             </div>
-            <my-homework :homework="homework" @click="click"></my-homework>
+            <div id="my-student-main">
+                <my-homework :homework="homework" :deadline="deadline" @click="click"></my-homework>
+            </div>
         </div>
     </div>
 </template>
@@ -18,6 +20,7 @@
     import { mapState } from 'vuex'
     import axios from "axios"
     import myHomework from '../../components/my-homework.vue'
+    import moment from 'moment-timezone'
 
     export default {
         name: 'my-student',
@@ -31,10 +34,15 @@
             return {
                 experiment: [], // [eId: xxx, title: xxx, deadline: xxx]
                 activeIndex: -1, // 选中的实验，默认展开最后一个实验
-                homework: [] // 实验的题目列表
+                homework: [], // 实验的题目列表
+                deadline: null // 选中实验的截止时间
             };
         },
         async mounted() {
+            const element = document.getElementById("my-student-main")
+            console.log(screen.availHeight)
+            element.style.height = (screen.availHeight - 180) + 'px'
+
             await this.getAllExperiments()
             const lastIndex = this.experiment.length - 1
             if (lastIndex === -1) {
@@ -56,11 +64,13 @@
                 }
             },
             async selectDetails(i) {
-                this.activeIndex = i;
+                if (i < 0) return // 如果 i < 0 则返回
 
+                this.activeIndex = i;
+                const entity = this.experiment[this.activeIndex]
                 const {data: res} = await axios.get('/student/homeworks', {
                     params: {
-                        e_id: this.experiment[this.activeIndex].eId,
+                        e_id: entity.eId,
                         s_id: this.user.id
                     }
                 })
@@ -82,6 +92,9 @@
                         }
                         return item
                     })
+                    // 格式化截止时间
+                    const tz = 'Asia/Shanghai'  //时区
+                    this.deadline = moment.utc(entity.deadline).tz(tz).format('YYYY-MM-DD HH:mm:ss')
                 }
             },
             async click(item) {
@@ -156,5 +169,21 @@
     .active{
         color: rgb(64, 158, 255);
         background-color: rgb(236, 245, 255);
+    }
+
+    #my-student-main {
+        overflow-y: scroll;
+    }
+
+    /* 修改题目区域的滚动条宽度 */
+    #my-student-main::-webkit-scrollbar {
+        width: 5px;
+        background-color: #F5F5F5;
+    }
+
+    /* 修改滚动条的样式 */
+    #my-student-main::-webkit-scrollbar-thumb {
+        border-radius: 20px;
+        background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0.44, rgb(122,153,217)), color-stop(0.72, rgb(73,125,189)), color-stop(0.86, rgb(28,58,148)));
     }
 </style>
